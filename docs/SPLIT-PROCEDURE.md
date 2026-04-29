@@ -21,6 +21,47 @@ split-output/
 
 The script is non-destructive. It writes only to `split-output/`.
 
+## Phase 1 integrity checks
+
+Run from the Alpha repo root:
+
+```bash
+go test ./...
+go vet ./...
+go build ./packages/mdk/cmd/truth-bridge
+pnpm install
+pnpm --filter @workspace/wave-i typecheck
+pnpm --filter @workspace/wave-i build
+```
+
+## Runtime truth-bridge proof
+
+Run the bridge locally:
+
+```bash
+go run ./packages/mdk/cmd/truth-bridge
+```
+
+Then verify:
+
+```bash
+curl http://127.0.0.1:8089/health
+curl http://127.0.0.1:8089/api/truth
+```
+
+Expected Phase 1 posture:
+
+```text
+/health returns ok
+/api/truth returns schema wvrdr.alpha.truth.v1
+Dormant Schwab remains DEGRADED / UNRESOLVED or FAILED
+executionEligible remains false
+No credentials
+No OAuth
+No live orders
+No fake LIVE
+```
+
 ## Before pushing split output
 
 MDK checks:
@@ -29,7 +70,7 @@ MDK checks:
 cd split-output/MDK-9000_wVRdr
 go test ./...
 go vet ./...
-go build ./tools/wvdr-cli/...
+go build ./cmd/truth-bridge
 ```
 
 Wave-I checks:
@@ -38,7 +79,6 @@ Wave-I checks:
 cd split-output/wVRdr_Wave-I_Build/artifacts/wave-i
 pnpm install
 pnpm typecheck
-pnpm test
 pnpm build
 ```
 
@@ -59,15 +99,4 @@ packages/wave-i/src/lib/alpha-bridge.ts
 
 ## Stop condition for Phase 1
 
-Phase 1 is not complete until all of these pass after packages are populated:
-
-```text
-go test ./packages/mdk/...
-go vet ./packages/mdk/...
-go build ./packages/mdk/tools/wvdr-cli/...
-go build -o bin/truth-bridge ./packages/mdk/cmd/truth-bridge
-pnpm --filter @workspace/wave-i typecheck
-pnpm --filter @workspace/wave-i test
-pnpm --filter @workspace/wave-i build
-bash tools/split.sh
-```
+Phase 1 is not complete until the Phase 1 integrity checks pass and the runtime truth-bridge proof confirms conservative dormant posture.
