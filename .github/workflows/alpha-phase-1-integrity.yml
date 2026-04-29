@@ -38,10 +38,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: pnpm
 
       - name: Install packages
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Wave-I typecheck
         run: pnpm --filter @workspace/wave-i typecheck
