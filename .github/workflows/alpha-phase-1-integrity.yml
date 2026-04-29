@@ -1,0 +1,77 @@
+name: Alpha Phase 1 Integrity
+
+on:
+  push:
+    branches:
+      - alpha-phase-1-integrity-pass
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Go test
+        run: go test ./...
+
+      - name: Go vet
+        run: go vet ./...
+
+      - name: Build truth bridge
+        run: go build ./packages/mdk/cmd/truth-bridge
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: Install packages
+        run: pnpm install
+
+      - name: Wave-I typecheck
+        run: pnpm --filter @workspace/wave-i typecheck
+
+      - name: Wave-I build
+        run: pnpm --filter @workspace/wave-i build
+
+      - name: Start truth bridge
+        run: |
+          go run ./packages/mdk/cmd/truth-bridge > /tmp/truth-bridge.log 2>&1 &
+          echo $! > /tmp/truth-bridge.pid
+          sleep 2
+
+      - name: Check health
+        run: |
+          curl --fail --silent http://127.0.0.1:8089/health | tee /tmp/health.json
+          grep '"status":"ok"' /tmp/health.json
+
+      - name: Check truth envelope posture
+        run: |
+          curl --fail --silent http://127.0.0.1:8089/api/truth | tee /tmp/truth.json
+          grep '"schema": "wvrdr.alpha.truth.v1"' /tmp/truth.json
+          grep '"source": "SCHWAB"' /tmp/truth.json
+          grep '"status": "DEGRADED"' /tmp/truth.json
+          grep '"truthClass": "UNRESOLVED"' /tmp/truth.json
+          grep '"executionEligible": false' /tmp/truth.json
+          grep '"networkEnabled": false' /tmp/truth.json
+          grep '"credentialsUsed": false' /tmp/truth.json
+
+      - name: Stop truth bridge
+        if: always()
+        run: |
+          if [ -f /tmp/truth-bridge.pid ]; then kill $(cat /tmp/truth-bridge.pid) || true; fi
