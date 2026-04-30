@@ -17,6 +17,7 @@ minimumReleaseAgeExclude:
   - stripe-replit-sync
 
 packages:
+  - apps/*
   - artifacts/*
   - packages/*
   - lib/*
@@ -88,8 +89,8 @@ overrides:
   "lightningcss>lightningcss-linux-arm64-gnu": "-"
   "lightningcss>lightningcss-linux-arm64-musl": "-"
   "lightningcss>lightningcss-linux-x64-musl": "-"
-  "lightningcss>lightningcss-win32-arm64-msvc": "-"
-  "lightningcss>lightningcss-win32-x64-msvc": "-"
+  "lightningcss>lightningcss-win32-arm64": "-"
+  "lightningcss>lightningcss-win32-x64": "-"
   "@tailwindcss/oxide>@tailwindcss/oxide-android-arm64": "-"
   "@tailwindcss/oxide>@tailwindcss/oxide-darwin-arm64": "-"
   "@tailwindcss/oxide>@tailwindcss/oxide-darwin-x64": "-"

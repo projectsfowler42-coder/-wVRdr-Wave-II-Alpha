@@ -1,7 +1,7 @@
 // Command truth-bridge runs a local-only HTTP server exposing MDK telemetry
 // to the Wave-I Alpha UI at 127.0.0.1:8089.
 //
-// Phase 1 constraints:
+// Phase constraints:
 //   - Loopback only. Never exposed to external network.
 //   - No Schwab OAuth. No credentials. No live orders.
 //   - executionEligible is false unless MDK returns verified SCHWAB/LIVE/RAW_MARKET.
@@ -22,8 +22,9 @@ import (
 )
 
 const (
-	listenAddr = "127.0.0.1:8089"
-	schema     = "wvrdr.alpha.truth.v1"
+	listenAddr     = "127.0.0.1:8089"
+	schema         = "wvrdr.alpha.truth.v1"
+	cockpitSchema = "wvrdr.alpha.cockpit.snapshot.v1"
 )
 
 // AlphaTruthResponse is the canonical JSON envelope returned by /api/truth.
@@ -36,6 +37,35 @@ type AlphaTruthResponse struct {
 	ExecutionEligible bool                  `json:"executionEligible"`
 	Weaknesses        []quarantine.Weakness `json:"weaknesses"`
 	Data              fetcher.Telemetry     `json:"data"`
+}
+
+type HealthResponse struct {
+	Status            string `json:"status"`
+	Server            string `json:"server"`
+	Schema            string `json:"schema"`
+	CockpitSchema     string `json:"cockpitSchema"`
+	Mode              string `json:"mode"`
+	ExecutionEligible bool   `json:"executionEligible"`
+}
+
+type CockpitSnapshot struct {
+	Schema     string                 `json:"schema"`
+	System     map[string]any         `json:"system"`
+	Regime     map[string]any         `json:"regime"`
+	Buckets    map[string]any         `json:"buckets"`
+	Portfolio  map[string]any         `json:"portfolio"`
+	Actions    map[string]any         `json:"actions"`
+	Audit      map[string]any         `json:"audit"`
+	Quarantine map[string]any         `json:"quarantine"`
+	Truth      AlphaTruthResponse     `json:"truth"`
+}
+
+type OperatorIntentResponse struct {
+	OK                bool     `json:"ok"`
+	Status            string   `json:"status"`
+	ExecutionEligible bool     `json:"executionEligible"`
+	AcceptedAt        string   `json:"acceptedAt"`
+	Warnings          []string `json:"warnings"`
 }
 
 func isLocalOrigin(origin string) bool {
@@ -62,8 +92,8 @@ func setCORSHeaders(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", origin)
 	w.Header().Set("Vary", "Origin")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization")
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {
@@ -92,22 +122,10 @@ func failureEnvelope(reason, detail string) AlphaTruthResponse {
 	}
 }
 
-func handleTruth(w http.ResponseWriter, r *http.Request) {
-	setCORSHeaders(w, r)
-
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-	if r.Method != http.MethodGet {
-		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "GET required"))
-		return
-	}
-
+func buildTruthEnvelope() AlphaTruthResponse {
 	data, err := fetcher.ParallelRaceFetcher()
 	if err != nil {
-		writeJSON(w, http.StatusOK, failureEnvelope("FETCH_ERROR", err.Error()))
-		return
+		return failureEnvelope("FETCH_ERROR", err.Error())
 	}
 
 	weaknesses := quarantine.Inspect(quarantine.Telemetry(data))
@@ -121,7 +139,7 @@ func handleTruth(w http.ResponseWriter, r *http.Request) {
 		truthClass == "RAW_MARKET" &&
 		len(weaknesses) == 0
 
-	resp := AlphaTruthResponse{
+	return AlphaTruthResponse{
 		Schema:            schema,
 		FetchedAt:         time.Now().UTC().Format(time.RFC3339Nano),
 		Source:            source,
@@ -131,17 +149,165 @@ func handleTruth(w http.ResponseWriter, r *http.Request) {
 		Weaknesses:        weaknesses,
 		Data:              data,
 	}
+}
 
-	writeJSON(w, http.StatusOK, resp)
+func healthResponse() HealthResponse {
+	return HealthResponse{
+		Status:            "ok",
+		Server:            "truth-bridge",
+		Schema:            schema,
+		CockpitSchema:     cockpitSchema,
+		Mode:              "READ_ONLY_DORMANT",
+		ExecutionEligible: false,
+	}
+}
+
+func handleHealth(w http.ResponseWriter, r *http.Request) {
+	setCORSHeaders(w, r)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "GET required"))
+		return
+	}
+	writeJSON(w, http.StatusOK, healthResponse())
+}
+
+func handleTruth(w http.ResponseWriter, r *http.Request) {
+	setCORSHeaders(w, r)
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "GET required"))
+		return
+	}
+
+	writeJSON(w, http.StatusOK, buildTruthEnvelope())
+}
+
+func buildCockpitSnapshot(truth AlphaTruthResponse) CockpitSnapshot {
+	warnings := []string{
+		"Phase 2 local bridge only; broker execution locked.",
+		"No credentials, OAuth, live transport, or live orders are enabled.",
+	}
+
+	drivers := []string{
+		fmt.Sprintf("source=%s", truth.Source),
+		fmt.Sprintf("status=%s", truth.Status),
+		fmt.Sprintf("truthClass=%s", truth.TruthClass),
+		fmt.Sprintf("executionEligible=%t", truth.ExecutionEligible),
+		"networkEnabled=false and credentialsUsed=false are required in dormant mode",
+	}
+
+	if len(truth.Weaknesses) > 0 {
+		warnings = append(warnings, "Truth weaknesses are present; cockpit remains degraded.")
+	}
+
+	return CockpitSnapshot{
+		Schema: cockpitSchema,
+		System: map[string]any{
+			"name":          "~wVRdr~ Wave-II~Alpha",
+			"mode":          "DEGRADED",
+			"health":        truth.Status,
+			"last_updated":  truth.FetchedAt,
+			"truth_spine":   truth.Schema,
+			"stale":         truth.Status == "STALE" || truth.TruthClass == "STALE_RESCUE",
+			"warnings":      warnings,
+		},
+		Regime: map[string]any{
+			"label":    fmt.Sprintf("%s / %s", truth.Status, truth.TruthClass),
+			"drivers":  drivers,
+			"stale":    truth.Status == "STALE" || truth.TruthClass == "STALE_RESCUE",
+			"verified": truth.ExecutionEligible,
+		},
+		Buckets: map[string]any{},
+		Portfolio: map[string]any{
+			"positions": []any{},
+			"warnings":  []string{"No broker holdings are connected in Phase 2."},
+		},
+		Actions: map[string]any{
+			"urgent":    []any{},
+			"active":    []any{},
+			"completed": []any{},
+			"blocked": []map[string]any{
+				{
+					"id":      "broker-execution-locked",
+					"label":   "Broker execution locked",
+					"type":    "capability_lock",
+					"allowed": false,
+				},
+			},
+		},
+		Audit: map[string]any{
+			"status": "LOCAL_INTENT_ONLY",
+			"recent": []any{},
+		},
+		Quarantine: map[string]any{
+			"count": len(truth.Weaknesses),
+			"items": truth.Weaknesses,
+		},
+		Truth: truth,
+	}
+}
+
+func handleSnapshot(w http.ResponseWriter, r *http.Request) {
+	setCORSHeaders(w, r)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "GET required"))
+		return
+	}
+
+	truth := buildTruthEnvelope()
+	writeJSON(w, http.StatusOK, buildCockpitSnapshot(truth))
+}
+
+func handleOperatorIntent(w http.ResponseWriter, r *http.Request) {
+	setCORSHeaders(w, r)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "POST required"))
+		return
+	}
+
+	defer r.Body.Close()
+	var intent map[string]any
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 32*1024)).Decode(&intent); err != nil {
+		writeJSON(w, http.StatusBadRequest, failureEnvelope("INVALID_INTENT", err.Error()))
+		return
+	}
+
+	log.Printf("operator intent captured locally with execution disabled: keys=%d", len(intent))
+	writeJSON(w, http.StatusOK, OperatorIntentResponse{
+		OK:                true,
+		Status:            "recorded_no_execution",
+		ExecutionEligible: false,
+		AcceptedAt:        time.Now().UTC().Format(time.RFC3339Nano),
+		Warnings: []string{
+			"Intent was captured for audit posture only.",
+			"No broker transport, order route, credential, or OAuth path exists in Phase 2.",
+		},
+	})
 }
 
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/truth", handleTruth)
-	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintln(w, `{"status":"ok","server":"truth-bridge","schema":"wvrdr.alpha.truth.v1"}`)
-	})
+	mux.HandleFunc("/api/snapshot", handleSnapshot)
+	mux.HandleFunc("/api/health", handleHealth)
+	mux.HandleFunc("/api/operator/intent", handleOperatorIntent)
+	mux.HandleFunc("/health", handleHealth)
 
 	server := &http.Server{
 		Addr:         listenAddr,
