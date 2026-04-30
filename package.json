@@ -6,7 +6,10 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "typecheck": "pnpm -r --if-present run typecheck",
-    "build": "pnpm -r --if-present run build"
+    "build": "pnpm -r --if-present run build",
+    "dev:bridge": "bash scripts/dev-bridge.sh",
+    "dev:cockpit": "bash scripts/dev-cockpit.sh",
+    "check:local-proof": "bash scripts/check-local-proof.sh"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",
