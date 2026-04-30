@@ -5,6 +5,7 @@ on:
     branches:
       - alpha-phase-1-integrity-pass
       - alpha-phase-2-cockpit-bridge
+      - alpha-phase-3-local-run-proof
   pull_request:
     branches:
       - main
@@ -58,54 +59,20 @@ jobs:
           VITE_API_BASE_URL: http://127.0.0.1:8089
           VITE_PUBLIC_READ_TOKEN: ""
 
+      - name: Validate local run scripts
+        run: |
+          bash -n scripts/dev-bridge.sh
+          bash -n scripts/dev-cockpit.sh
+          bash -n scripts/check-local-proof.sh
+
       - name: Start truth bridge
         run: |
           go run ./packages/mdk/cmd/truth-bridge > /tmp/truth-bridge.log 2>&1 &
           echo $! > /tmp/truth-bridge.pid
           sleep 2
 
-      - name: Check health
-        run: |
-          curl --fail --silent http://127.0.0.1:8089/health | tee /tmp/health.json
-          grep '"status": "ok"' /tmp/health.json
-
-      - name: Check API health
-        run: |
-          curl --fail --silent http://127.0.0.1:8089/api/health | tee /tmp/api-health.json
-          grep '"status": "ok"' /tmp/api-health.json
-          grep '"mode": "READ_ONLY_DORMANT"' /tmp/api-health.json
-          grep '"executionEligible": false' /tmp/api-health.json
-
-      - name: Check truth envelope posture
-        run: |
-          curl --fail --silent http://127.0.0.1:8089/api/truth | tee /tmp/truth.json
-          grep '"schema": "wvrdr.alpha.truth.v1"' /tmp/truth.json
-          grep '"source": "SCHWAB"' /tmp/truth.json
-          grep '"status": "DEGRADED"' /tmp/truth.json
-          grep '"truthClass": "UNRESOLVED"' /tmp/truth.json
-          grep '"executionEligible": false' /tmp/truth.json
-          grep '"networkEnabled": false' /tmp/truth.json
-          grep '"credentialsUsed": false' /tmp/truth.json
-
-      - name: Check cockpit snapshot posture
-        run: |
-          curl --fail --silent http://127.0.0.1:8089/api/snapshot | tee /tmp/snapshot.json
-          grep '"schema": "wvrdr.alpha.cockpit.snapshot.v1"' /tmp/snapshot.json
-          grep '"name": "~wVRdr~ Wave-II~Alpha"' /tmp/snapshot.json
-          grep '"mode": "DEGRADED"' /tmp/snapshot.json
-          grep '"executionEligible": false' /tmp/snapshot.json
-          grep '"Broker execution locked"' /tmp/snapshot.json
-
-      - name: Check operator intent remains non-executing
-        run: |
-          curl --fail --silent \
-            -X POST \
-            -H 'Content-Type: application/json' \
-            -d '{"kind":"ci_probe"}' \
-            http://127.0.0.1:8089/api/operator/intent | tee /tmp/operator-intent.json
-          grep '"ok": true' /tmp/operator-intent.json
-          grep '"status": "recorded_no_execution"' /tmp/operator-intent.json
-          grep '"executionEligible": false' /tmp/operator-intent.json
+      - name: Check local proof script
+        run: pnpm check:local-proof
 
       - name: Stop truth bridge
         if: always()
