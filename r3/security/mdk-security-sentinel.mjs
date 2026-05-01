@@ -39,6 +39,7 @@ const policyLexiconFiles = new Set([
   ".gitignore",
   "r3/security/mdk-security-sentinel.mjs",
   "r3/local-vault/README.md",
+  "r3/local-vault/bridge.ts",
 ]);
 
 function sha256(value) {
