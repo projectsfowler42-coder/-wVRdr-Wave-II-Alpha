@@ -1,6 +1,6 @@
-import type { EngineFinding, TruthEnvelope } from "./truth";
-import type { SurvivorshipProfile } from "./survivorshipInversion";
-import { blocksEdgeConfirmation } from "./survivorshipInversion";
+import type { EngineFinding, TruthEnvelope } from "./truth.js";
+import type { SurvivorshipProfile } from "./survivorshipInversion.js";
+import { blocksEdgeConfirmation } from "./survivorshipInversion.js";
 
 export interface PromotionInput {
   candidateId: string;
