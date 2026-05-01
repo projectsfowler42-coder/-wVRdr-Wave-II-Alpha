@@ -1,0 +1,69 @@
+name: Import wave-rider-intelligence wholesale
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Source ref from projectsfowler42-coder/wave-rider-intelligence"
+        required: true
+        default: "main"
+      target_branch:
+        description: "Branch to create/update with the import"
+        required: true
+        default: "alpha-import-wave-rider-intelligence"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Wave-II Alpha
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create import branch
+        run: |
+          git checkout -B "${{ github.event.inputs.target_branch }}"
+
+      - name: Import intelligence repo wholesale
+        env:
+          SOURCE_REPO: https://github.com/projectsfowler42-coder/wave-rider-intelligence.git
+          SOURCE_REF: ${{ github.event.inputs.source_ref }}
+          IMPORT_DIR: imports/wave-rider-intelligence
+        run: |
+          bash scripts/import-wave-rider-intelligence-wholesale.sh
+
+      - name: Commit import if changed
+        id: commit
+        run: |
+          git status --short
+          if [ -z "$(git status --short)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git add imports/wave-rider-intelligence docs/imports/wave-rider-intelligence-import-manifest.txt
+          git commit -m "import(alpha): copy wave-rider-intelligence wholesale into Wave-II Alpha"
+          git push --force-with-lease origin "${{ github.event.inputs.target_branch }}"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --title "Import wave-rider-intelligence wholesale into Wave-II Alpha" \
+            --body "Wholesale import of projectsfowler42-coder/wave-rider-intelligence into imports/wave-rider-intelligence.\n\nBoundary preserved:\n- Quarantined source corpus only.\n- No broker execution.\n- No fake LIVE.\n- No Wave-I runtime mutation.\n- Imported modules require separate review/promotion before use." \
+            --base main \
+            --head "${{ github.event.inputs.target_branch }}" \
+          || gh pr view "${{ github.event.inputs.target_branch }}" --json url --jq .url
