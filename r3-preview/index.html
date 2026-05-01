@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wVRdr R³ Preview Shell</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <section>
+          <p class="eyebrow">wVRdr~ / Wave-II Alpha</p>
+          <h1>R³ Preview Shell</h1>
+        </section>
+        <section class="status-strip" aria-label="System status">
+          <span id="modeBadge" class="badge badge-safe">SAFE_MODE</span>
+          <span id="truthBadge" class="badge badge-watch">REPO_SAFE_PROJECTION ONLY</span>
+          <span id="clockBadge" class="badge">--:--:--</span>
+        </section>
+      </header>
+
+      <section class="grid grid-hero">
+        <article class="panel hero-panel">
+          <div class="panel-header">
+            <p class="eyebrow">Control Spine</p>
+            <h2>Truth → Vault → Projection → Intake</h2>
+          </div>
+          <div class="flowline" aria-label="R3 flow line">
+            <div class="flow-node blocked">Private Data<br /><small>local only</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node watch">Local Vault<br /><small>trusted device</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node live">Repo-Safe<br /><small>projection</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node safe">R³ Viewer<br /><small>read-only</small></div>
+          </div>
+        </article>
+
+        <article class="panel metric-panel">
+          <p class="eyebrow">Viewer State</p>
+          <h2 id="viewerState">WAITING</h2>
+          <p id="viewerSubstate">Load a repo-safe manifest or run in simulated design mode.</p>
+        </article>
+      </section>
+
+      <section class="grid grid-main">
+        <article class="panel">
+          <div class="panel-header row">
+            <div>
+              <p class="eyebrow">Manifest Intake</p>
+              <h2>Repo-Safe Source Status</h2>
+            </div>
+            <button id="loadDemoButton" class="ghost-button">Load demo</button>
+          </div>
+          <textarea id="manifestInput" spellcheck="false" placeholder="Paste repo-safe manifest JSON here. Local vault manifests with files/pathOrUrl should be rejected by design."></textarea>
+          <div class="button-row">
+            <button id="parseManifestButton">Parse manifest</button>
+            <button id="clearManifestButton" class="danger-button">Clear</button>
+          </div>
+          <div id="manifestResult" class="result-box">No manifest loaded.</div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <p class="eyebrow">Security</p>
+            <h2>Safe Mode / Break-Glass Watch</h2>
+          </div>
+          <dl class="kv-list">
+            <div><dt>Default</dt><dd>SAFE_MODE</dd></div>
+            <div><dt>Biometric Layer</dt><dd>WebAuthn / Platform Authenticator</dd></div>
+            <div><dt>Allowed</dt><dd>scoped, time-boxed local actions</dd></div>
+            <div><dt>Absolute Blocks</dt><dd>secrets, refresh tokens, fake LIVE, raw broker rows, broker orders</dd></div>
+          </dl>
+          <div class="warning-card">
+            Fingerprint can approve a narrow emergency action. It cannot make unsafe data safe.
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <p class="eyebrow">Real-Time Viewer</p>
+            <h2>Polling Surface</h2>
+          </div>
+          <div class="polling-card">
+            <label for="pollUrl">Repo-safe JSON URL / local endpoint</label>
+            <input id="pollUrl" value="./sample.repo-safe.json" />
+            <div class="button-row">
+              <button id="pollOnceButton">Poll once</button>
+              <button id="togglePollButton" class="ghost-button">Start polling</button>
+            </div>
+            <p id="pollStatus" class="muted">Idle.</p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <p class="eyebrow">Audit Console</p>
+            <h2>Events</h2>
+          </div>
+          <ol id="eventLog" class="event-log"></ol>
+        </article>
+      </section>
+    </main>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
