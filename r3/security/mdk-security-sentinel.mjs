@@ -32,6 +32,13 @@ const allowedDirs = new Set([
   "dist",
   "build",
   "coverage",
+  "out",
+]);
+
+const policyLexiconFiles = new Set([
+  ".gitignore",
+  "r3/security/mdk-security-sentinel.mjs",
+  "r3/local-vault/README.md",
 ]);
 
 function sha256(value) {
@@ -60,37 +67,82 @@ function walk(entry, files = []) {
   return files;
 }
 
+function isRedactedTemplate(file, text) {
+  if (!file.endsWith(".redacted.csv")) return false;
+  const unsafeRawValue = /\b(?:\d{4,}|[A-Z]{2,5}\d{2,}|\d+\.\d{2})\b/.test(text.replace(/YYYY-MM-DD/g, ""));
+  const hasRedactedMarkers = /REDACTED_|,0,0,0,0,/.test(text);
+  return hasRedactedMarkers && !unsafeRawValue;
+}
+
+function isPolicyLexiconFile(file) {
+  return policyLexiconFiles.has(file) || file.endsWith(".md") || file.includes("/README");
+}
+
+function applyFinding(result, finding) {
+  result.verdict = worst(result.verdict, finding.severity);
+  result.findings.push(finding);
+}
+
 function inspectFile(file) {
   const result = {
     file,
     sha256: null,
     verdict: "PASS",
+    classification: "NORMAL",
     findings: [],
   };
-
-  for (const pattern of denyFileNamePatterns) {
-    if (pattern.test(file)) {
-      result.verdict = worst(result.verdict, "BLOCK");
-      result.findings.push({ severity: "BLOCK", code: "DENY_FILENAME", message: "Filename matches private/broker-data deny pattern." });
-    }
-  }
 
   const full = path.join(root, file);
   const bytes = fs.readFileSync(full);
   result.sha256 = sha256(bytes).slice(0, 16);
 
   if (bytes.length > 1024 * 1024) {
-    result.verdict = worst(result.verdict, "WATCH");
-    result.findings.push({ severity: "WATCH", code: "LARGE_FILE", message: "Large file requires review before commit." });
+    applyFinding(result, { severity: "WATCH", code: "LARGE_FILE", message: "Large file requires review before commit." });
     return result;
   }
 
   const text = bytes.toString("utf8");
-  for (const detector of sensitiveContentPatterns) {
-    if (detector.pattern.test(text)) {
-      result.verdict = worst(result.verdict, detector.severity);
-      result.findings.push({ severity: detector.severity, code: detector.code, message: "Sensitive content pattern matched." });
+  const redactedTemplate = isRedactedTemplate(file, text);
+  const policyLexicon = isPolicyLexiconFile(file);
+
+  if (redactedTemplate) result.classification = "REDACTED_TEMPLATE";
+  else if (policyLexicon) result.classification = "POLICY_LEXICON";
+
+  for (const pattern of denyFileNamePatterns) {
+    if (pattern.test(file)) {
+      const severity = redactedTemplate ? "WATCH" : "BLOCK";
+      applyFinding(result, {
+        severity,
+        code: redactedTemplate ? "REDACTED_TEMPLATE_DENY_NAME" : "DENY_FILENAME",
+        message: redactedTemplate
+          ? "Filename resembles private data but is explicitly redacted template."
+          : "Filename matches private/broker-data deny pattern.",
+      });
     }
+  }
+
+  for (const detector of sensitiveContentPatterns) {
+    if (!detector.pattern.test(text)) continue;
+
+    if (redactedTemplate) {
+      applyFinding(result, {
+        severity: "WATCH",
+        code: `REDACTED_TEMPLATE_${detector.code}`,
+        message: "Sensitive label appears only inside a redacted template.",
+      });
+      continue;
+    }
+
+    if (policyLexicon) {
+      applyFinding(result, {
+        severity: "WATCH",
+        code: `POLICY_LEXICON_${detector.code}`,
+        message: "Sensitive term appears in policy/scanner/documentation context.",
+      });
+      continue;
+    }
+
+    applyFinding(result, { severity: detector.severity, code: detector.code, message: "Sensitive content pattern matched." });
   }
 
   return result;
@@ -110,7 +162,7 @@ const report = {
   inspected,
   policy: {
     rawUserFinancialData: "trusted-device-only",
-    publicRepoAllowed: ["schemas", "redacted templates", "checksums", "source manifests", "scanner code"],
+    publicRepoAllowed: ["schemas", "redacted templates", "checksums", "source manifests", "scanner code", "security policy docs"],
     publicRepoDenied: ["broker confirmation rows", "exact private account positions", "secret tokens", "private keys"],
   },
 };
