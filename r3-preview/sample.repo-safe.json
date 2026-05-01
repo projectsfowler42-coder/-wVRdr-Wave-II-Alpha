@@ -1,0 +1,33 @@
+{
+  "manifestId": "sample-repo-safe-001",
+  "generatedAt": "2026-05-02T00:00:00.000Z",
+  "deviceScope": "REPO_SAFE_PROJECTION",
+  "sourceManifests": [
+    {
+      "sourceId": "sample:source:1",
+      "kind": "BROKER_EXPORT",
+      "status": "LOADED",
+      "title": "Trusted local vault source 1",
+      "licenseStatus": "INTERNAL",
+      "confidence": 0.8,
+      "notes": [
+        "sha256Prefix:sample0000000001",
+        "Repo-safe projection: local path stripped."
+      ]
+    }
+  ],
+  "sourceCount": 1,
+  "privateSourceCount": 1,
+  "redactedSourceCount": 0,
+  "exportPolicy": {
+    "rawRowsMayLeaveDevice": false,
+    "containsLocalPaths": false,
+    "containsRawFileProbes": false,
+    "allowedRepoArtifacts": [
+      "source-status",
+      "checksum-prefix",
+      "aggregate-derived-state",
+      "redacted-source-count"
+    ]
+  }
+}
