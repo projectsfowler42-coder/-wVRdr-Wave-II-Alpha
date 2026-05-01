@@ -9,6 +9,7 @@ const requiredFiles = [
   "r3/survivorshipInversion.ts",
   "r3/promotionGate.ts",
   "r3/mdkGate.ts",
+  "r3/contracts.ts",
   "r3/index.ts",
   "r3/tests/r3Engine.spec.ts",
 ];
@@ -18,6 +19,7 @@ const requiredTokens = new Map([
   ["r3/survivorshipInversion.ts", ["SurvivorshipProfile", "CRITICAL", "graveyard cohort missing", "blocksEdgeConfirmation"]],
   ["r3/promotionGate.ts", ["NO_WALK_FORWARD", "NOT_UNCERTAIN_CANDIDATE", "SURVIVORSHIP_BLINDNESS_RISK"]],
   ["r3/mdkGate.ts", ["SENTINEL", "JUDGE", "ARCHIVIST", "MDK_PROMOTION_BLOCKED", "mdkBlocksPromotion"]],
+  ["r3/contracts.ts", ["R3SourceManifestRecord", "R3EventNode", "R3FeatureVector", "R3PredictionRecord", "R3SarlaacRecord"]],
   ["r3/tests/r3Engine.spec.ts", ["testHardDeck", "testVolatilityClamp", "testRatchet", "testSurvivorOnlyBlocksEdge", "testMdkBlocksBlockedPromotion"]],
 ]);
 
@@ -43,7 +45,7 @@ for (const file of requiredFiles) {
 }
 
 const index = fs.readFileSync(path.join(root, "r3/index.ts"), "utf8");
-for (const exportName of ["truth", "propDoctrine", "circuitBreakers", "survivorshipInversion", "promotionGate", "mdkGate"]) {
+for (const exportName of ["truth", "propDoctrine", "circuitBreakers", "survivorshipInversion", "promotionGate", "mdkGate", "contracts"]) {
   if (!index.includes(`./${exportName}`)) {
     fail(`r3/index.ts does not export ${exportName}`);
   }

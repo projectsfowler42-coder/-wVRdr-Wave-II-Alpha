@@ -3,6 +3,7 @@ import { buildSurvivorshipProfile } from "../survivorshipInversion.js";
 import { evaluatePromotion } from "../promotionGate.js";
 import { waveIIEnvelope } from "../truth.js";
 import { inspectWithMdk, mdkBlocksPromotion } from "../mdkGate.js";
+import { predictionCanBeScored, sarlaacRecordIsActionable, sourceIsUsable } from "../contracts.js";
 
 function assert(condition: unknown, message: string): void {
   if (!condition) throw new Error(message);
@@ -95,6 +96,13 @@ export function testMdkBlocksBlockedPromotion(): void {
   assertEqual(mdkBlocksPromotion(record), true, "MDK block helper should return true");
 }
 
+export function testR3Contracts(): void {
+  assertEqual(sourceIsUsable({ sourceId: "s1", kind: "PRICE_SPINE", status: "VALIDATED", title: "fixture", licenseStatus: "FREE", confidence: 0.8, notes: [] }), true, "Validated confident source should be usable");
+  assertEqual(sourceIsUsable({ sourceId: "s2", kind: "PRICE_SPINE", status: "CANDIDATE", title: "fixture", licenseStatus: "UNKNOWN", confidence: 0.9, notes: [] }), false, "Candidate source should not be usable");
+  assertEqual(predictionCanBeScored({ predictionId: "p1", candidateId: "c1", asOf: "2001-01-01", horizonDays: 20, expectedDirection: "UP", truthClass: "SIMULATED", trainingWindow: { start: "1900-01-01", end: "2000-12-31" }, validationWindow: { start: "2001-01-01", end: "2001-12-31" }, featureVectorIds: ["fv1"], sourceIds: ["s1"] }), true, "Prediction with validation window and features should be scorable");
+  assertEqual(sarlaacRecordIsActionable({ sarlaacId: "sr1", predictionId: "p1", grade: "F", missType: "SURVIVORSHIP_BLINDNESS", expectedSummary: "up", actualSummary: "down", missingFeatureNeeded: ["graveyard cohort"], misleadingFeatureIds: [], revisedQuestion: "What failed before disappearance?", sourceIds: ["s1"], createdAt: "2026-05-01T00:00:00.000Z" }), true, "Sarlaac record with revised question and missing feature should be actionable");
+}
+
 export function runR3Tests(): void {
   testHardDeck();
   testVolatilityClamp();
@@ -103,6 +111,7 @@ export function runR3Tests(): void {
   testPromotionBlocksWithoutWalkForward();
   testPromotionAllowsNotUncertainCandidate();
   testMdkBlocksBlockedPromotion();
+  testR3Contracts();
 }
 
 runR3Tests();
