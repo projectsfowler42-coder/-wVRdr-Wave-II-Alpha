@@ -1,0 +1,36 @@
+name: R3 MDK Security Sentinel
+
+on:
+  pull_request:
+    paths:
+      - "r3/**"
+      - ".gitignore"
+      - ".github/workflows/r3-security-sentinel.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "r3/**"
+      - ".gitignore"
+      - ".github/workflows/r3-security-sentinel.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mdk-security-sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run MDK Security Sentinel
+        run: node r3/security/mdk-security-sentinel.mjs r3 .github .gitignore
+
+      - name: Upload security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdk-security-sentinel-report
+          path: r3/security/out/mdk-security-sentinel-report.json
