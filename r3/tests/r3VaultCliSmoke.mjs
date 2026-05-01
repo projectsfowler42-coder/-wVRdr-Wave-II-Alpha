@@ -10,6 +10,7 @@ function fail(message) {
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "r3-vault-cli-"));
 const inputFile = path.join(tempDir, "broker_confirmed_seed.csv");
 const outFile = path.join(tempDir, "manifest.json");
+const repoSafeOutFile = path.join(tempDir, "manifest.repo-safe.json");
 
 fs.writeFileSync(inputFile, "ticker,quantity,price\nREDACTED,0,0\n");
 
@@ -51,6 +52,49 @@ if (Object.prototype.hasOwnProperty.call(source, "pathOrUrl")) {
 
 if (!source.notes?.some((note) => String(note).startsWith("sha256Prefix:"))) {
   fail("Vault CLI manifest missing checksum prefix note.");
+}
+
+execFileSync(
+  process.execPath,
+  [
+    ".r3-build/local-vault/make-repo-safe-manifest.js",
+    "--in",
+    outFile,
+    "--out",
+    repoSafeOutFile,
+  ],
+  { stdio: "inherit" },
+);
+
+if (!fs.existsSync(repoSafeOutFile)) {
+  fail("Repo-safe vault CLI did not write projection output file.");
+}
+
+const repoSafeManifest = JSON.parse(fs.readFileSync(repoSafeOutFile, "utf8"));
+const repoSafeSource = repoSafeManifest.sourceManifests?.[0];
+
+if (repoSafeManifest.deviceScope !== "REPO_SAFE_PROJECTION") {
+  fail("Repo-safe manifest must use REPO_SAFE_PROJECTION scope.");
+}
+
+if (repoSafeManifest.exportPolicy?.containsLocalPaths !== false) {
+  fail("Repo-safe manifest must declare containsLocalPaths=false.");
+}
+
+if (repoSafeManifest.exportPolicy?.containsRawFileProbes !== false) {
+  fail("Repo-safe manifest must declare containsRawFileProbes=false.");
+}
+
+if (Array.isArray(repoSafeManifest.files)) {
+  fail("Repo-safe manifest must not include raw file probes.");
+}
+
+if (!repoSafeSource) {
+  fail("Repo-safe manifest missing first source manifest.");
+}
+
+if (Object.prototype.hasOwnProperty.call(repoSafeSource, "pathOrUrl")) {
+  fail("Repo-safe source manifest must strip pathOrUrl.");
 }
 
 console.log("R3 vault CLI smoke test passed.");
