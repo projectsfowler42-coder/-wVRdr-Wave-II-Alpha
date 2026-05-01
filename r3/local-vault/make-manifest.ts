@@ -37,7 +37,7 @@ for (const flag of ["--id", "--out"]) {
   }
 }
 
-const files = args.filter((_, index) => !consumed.has(index) && !args[index].startsWith("--"));
+const files = args.filter((arg, index) => !consumed.has(index) && !arg.startsWith("--"));
 
 if (files.length === 0) {
   console.error("No input files provided.");
