@@ -1,0 +1,2 @@
+broker,trade_date,settle_date,action,ticker,cusip,description,quantity,price,principal,net_amount,payment_type,truth_class,source
+REDACTED_BROKER,YYYY-MM-DD,YYYY-MM-DD,Purchase,REDACTED_TICKER,REDACTED_CUSIP,REDACTED_DESCRIPTION,0,0,0,0,REDACTED_PAYMENT_TYPE,BROKER_CONFIRMATION,REDACTED_SOURCE
