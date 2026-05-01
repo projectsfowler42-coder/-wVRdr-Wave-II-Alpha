@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mdk-9000-wvrdr"
+version = "0.1.0"
+description = "MDK Tracker scaffold for fault memory, deployment truth, and Shadow/Fire/Forge packet generation."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115,<1.0",
+  "uvicorn>=0.30,<1.0",
+  "pydantic>=2.8,<3.0",
+  "pydantic-settings>=2.4,<3.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<9.0",
+  "httpx>=0.27,<1.0"
+]
+security = [
+  "pip-audit>=2.7,<3.0",
+  "bandit>=1.7,<2.0"
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.bandit]
+skips = [
+  "B310", # URL probes are intentional MDK runtime/build-truth checks.
+  "B404", # subprocess is used only to invoke fixed audit tools without shell strings.
+  "B603"  # subprocess argv lists are fixed and shell=False.
+]
