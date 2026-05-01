@@ -1,0 +1,26 @@
+name: R3 Integrity
+
+on:
+  pull_request:
+    paths:
+      - "r3/**"
+      - ".github/workflows/r3-integrity.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "r3/**"
+      - ".github/workflows/r3-integrity.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  r3-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run R3 dependency-free integrity check
+        run: node r3/tests/r3-integrity-check.mjs
