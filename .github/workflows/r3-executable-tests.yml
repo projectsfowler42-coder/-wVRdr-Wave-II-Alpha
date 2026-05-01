@@ -1,0 +1,49 @@
+name: R3 Executable Tests
+
+on:
+  pull_request:
+    paths:
+      - "r3/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "tsconfig.r3.json"
+      - ".github/workflows/r3-executable-tests.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "r3/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "tsconfig.r3.json"
+      - ".github/workflows/r3-executable-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  r3-executable-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run executable R3 tests
+        run: pnpm test:r3
+
+      - name: Run comparative R3 audit
+        run: pnpm audit:r3
