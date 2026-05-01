@@ -12,7 +12,8 @@
     "check:local-proof": "bash scripts/check-local-proof.sh",
     "test:r3": "pnpm exec tsc -p tsconfig.r3.json && node .r3-build/tests/r3Engine.spec.js && node r3/tests/r3VaultCliSmoke.mjs",
     "audit:r3": "node r3/audit/r3-audit-loop.mjs",
-    "vault:manifest": "pnpm exec tsc -p tsconfig.r3.json && node .r3-build/local-vault/make-manifest.js"
+    "vault:manifest": "pnpm exec tsc -p tsconfig.r3.json && node .r3-build/local-vault/make-manifest.js",
+    "vault:repo-safe": "pnpm exec tsc -p tsconfig.r3.json && node .r3-build/local-vault/make-repo-safe-manifest.js"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",
