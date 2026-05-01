@@ -22,9 +22,10 @@ import (
 )
 
 const (
-	listenAddr     = "127.0.0.1:8089"
-	schema         = "wvrdr.alpha.truth.v1"
-	cockpitSchema = "wvrdr.alpha.cockpit.snapshot.v1"
+	listenAddr        = "127.0.0.1:8089"
+	schema            = "wvrdr.alpha.truth.v1"
+	cockpitSchema    = "wvrdr.alpha.cockpit.snapshot.v1"
+	fiveThingsSchema = "wvrdr.alpha.telemetry.five_things.v1"
 )
 
 // AlphaTruthResponse is the canonical JSON envelope returned by /api/truth.
@@ -49,15 +50,15 @@ type HealthResponse struct {
 }
 
 type CockpitSnapshot struct {
-	Schema     string                 `json:"schema"`
-	System     map[string]any         `json:"system"`
-	Regime     map[string]any         `json:"regime"`
-	Buckets    map[string]any         `json:"buckets"`
-	Portfolio  map[string]any         `json:"portfolio"`
-	Actions    map[string]any         `json:"actions"`
-	Audit      map[string]any         `json:"audit"`
-	Quarantine map[string]any         `json:"quarantine"`
-	Truth      AlphaTruthResponse     `json:"truth"`
+	Schema     string             `json:"schema"`
+	System     map[string]any     `json:"system"`
+	Regime     map[string]any     `json:"regime"`
+	Buckets    map[string]any     `json:"buckets"`
+	Portfolio  map[string]any     `json:"portfolio"`
+	Actions    map[string]any     `json:"actions"`
+	Audit      map[string]any     `json:"audit"`
+	Quarantine map[string]any     `json:"quarantine"`
+	Truth      AlphaTruthResponse `json:"truth"`
 }
 
 type OperatorIntentResponse struct {
@@ -66,6 +67,22 @@ type OperatorIntentResponse struct {
 	ExecutionEligible bool     `json:"executionEligible"`
 	AcceptedAt        string   `json:"acceptedAt"`
 	Warnings          []string `json:"warnings"`
+}
+
+type FiveThingsResponse struct {
+	Schema            string            `json:"schema"`
+	ObservedAt        string            `json:"observedAt"`
+	Status            string            `json:"status"`
+	ExecutionEligible bool              `json:"executionEligible"`
+	Signals           []TelemetrySignal `json:"signals"`
+}
+
+type TelemetrySignal struct {
+	Label      string `json:"label"`
+	Value      string `json:"value"`
+	TruthClass string `json:"truthClass"`
+	Trend      string `json:"trend"`
+	Source     string `json:"source"`
 }
 
 func isLocalOrigin(origin string) bool {
@@ -190,6 +207,29 @@ func handleTruth(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, buildTruthEnvelope())
 }
 
+func buildFiveThings(truth AlphaTruthResponse) FiveThingsResponse {
+	networkEnabled, _ := truth.Data["networkEnabled"].(bool)
+	credentialsUsed, _ := truth.Data["credentialsUsed"].(bool)
+	brokerSocketMode, _ := truth.Data["brokerSocketMode"].(string)
+	if brokerSocketMode == "" {
+		brokerSocketMode = "UNKNOWN"
+	}
+
+	return FiveThingsResponse{
+		Schema:            fiveThingsSchema,
+		ObservedAt:        truth.FetchedAt,
+		Status:            "OPERATOR_REVIEW",
+		ExecutionEligible: truth.ExecutionEligible,
+		Signals: []TelemetrySignal{
+			{Label: "Truth Bridge", Value: "ONLINE_LOCAL", TruthClass: truth.TruthClass, Trend: "FLAT", Source: "truth-bridge"},
+			{Label: "Schwab Socket", Value: brokerSocketMode, TruthClass: truth.TruthClass, Trend: "FLAT", Source: "MDK dormant socket"},
+			{Label: "Network Transport", Value: fmt.Sprintf("%t", networkEnabled), TruthClass: truth.TruthClass, Trend: "FLAT", Source: "MDK telemetry"},
+			{Label: "Credentials", Value: fmt.Sprintf("%t", credentialsUsed), TruthClass: truth.TruthClass, Trend: "FLAT", Source: "MDK telemetry"},
+			{Label: "Execution Gate", Value: fmt.Sprintf("%t", truth.ExecutionEligible), TruthClass: truth.TruthClass, Trend: "FLAT", Source: "truth bridge"},
+		},
+	}
+}
+
 func buildCockpitSnapshot(truth AlphaTruthResponse) CockpitSnapshot {
 	warnings := []string{
 		"Phase 2 local bridge only; broker execution locked.",
@@ -211,13 +251,13 @@ func buildCockpitSnapshot(truth AlphaTruthResponse) CockpitSnapshot {
 	return CockpitSnapshot{
 		Schema: cockpitSchema,
 		System: map[string]any{
-			"name":          "~wVRdr~ Wave-II~Alpha",
-			"mode":          "DEGRADED",
-			"health":        truth.Status,
-			"last_updated":  truth.FetchedAt,
-			"truth_spine":   truth.Schema,
-			"stale":         truth.Status == "STALE" || truth.TruthClass == "STALE_RESCUE",
-			"warnings":      warnings,
+			"name":         "~wVRdr~ Wave-II~Alpha",
+			"mode":         "DEGRADED",
+			"health":       truth.Status,
+			"last_updated": truth.FetchedAt,
+			"truth_spine":  truth.Schema,
+			"stale":        truth.Status == "STALE" || truth.TruthClass == "STALE_RESCUE",
+			"warnings":     warnings,
 		},
 		Regime: map[string]any{
 			"label":    fmt.Sprintf("%s / %s", truth.Status, truth.TruthClass),
@@ -270,6 +310,21 @@ func handleSnapshot(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, buildCockpitSnapshot(truth))
 }
 
+func handleFiveThings(w http.ResponseWriter, r *http.Request) {
+	setCORSHeaders(w, r)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "GET required"))
+		return
+	}
+
+	truth := buildTruthEnvelope()
+	writeJSON(w, http.StatusOK, buildFiveThings(truth))
+}
+
 func handleOperatorIntent(w http.ResponseWriter, r *http.Request) {
 	setCORSHeaders(w, r)
 	if r.Method == http.MethodOptions {
@@ -305,6 +360,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/truth", handleTruth)
 	mux.HandleFunc("/api/snapshot", handleSnapshot)
+	mux.HandleFunc("/api/telemetry/five-things", handleFiveThings)
 	mux.HandleFunc("/api/health", handleHealth)
 	mux.HandleFunc("/api/operator/intent", handleOperatorIntent)
 	mux.HandleFunc("/health", handleHealth)
