@@ -1,5 +1,5 @@
-import type { EngineFinding, TruthEnvelope } from "./truth";
-import type { PromotionDecision } from "./promotionGate";
+import type { EngineFinding, TruthEnvelope } from "./truth.js";
+import type { PromotionDecision } from "./promotionGate.js";
 
 export type MdkRole = "SENTINEL" | "JUDGE" | "ARCHIVIST";
 export type MdkVerdict = "PASS" | "WATCH" | "BLOCK" | "BREACH";
