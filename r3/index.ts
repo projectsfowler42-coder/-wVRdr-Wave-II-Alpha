@@ -5,3 +5,4 @@ export * from "./survivorshipInversion.js";
 export * from "./promotionGate.js";
 export * from "./mdkGate.js";
 export * from "./contracts.js";
+export * from "./local-vault/bridge.js";
