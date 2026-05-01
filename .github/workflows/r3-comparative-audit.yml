@@ -1,0 +1,33 @@
+name: R3 Comparative Audit
+
+on:
+  pull_request:
+    paths:
+      - "r3/**"
+      - ".github/workflows/r3-comparative-audit.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "r3/**"
+      - ".github/workflows/r3-comparative-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  r3-comparative-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run comparative R3 audit
+        run: node r3/audit/r3-audit-loop.mjs
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: r3-audit-report
+          path: r3/audit/out/r3-audit-report.json
