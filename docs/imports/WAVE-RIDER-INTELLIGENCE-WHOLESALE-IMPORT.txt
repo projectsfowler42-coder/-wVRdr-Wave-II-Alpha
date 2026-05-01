@@ -1,0 +1,40 @@
+~wVRdr~ Wave-II~Alpha — Wholesale Intelligence Import
+
+Source repo:
+projectsfowler42-coder/wave-rider-intelligence
+
+Target repo:
+projectsfowler42-coder/-wVRdr-Wave-II-Alpha
+
+Import location:
+imports/wave-rider-intelligence
+
+Why this is scripted rather than manually copied by connector:
+The GitHub connector available in this chat can create/update individual files and PRs, but it does not expose a reliable full-tree copy operation from one repo to another. The correct safe method is to add a repo-local import script, run it with git access, then commit the resulting wholesale import.
+
+Command:
+
+bash scripts/import-wave-rider-intelligence-wholesale.sh
+
+git status --short
+git diff --stat
+git add imports/wave-rider-intelligence docs/imports/wave-rider-intelligence-import-manifest.txt
+git commit -m "import(alpha): copy wave-rider-intelligence wholesale into Wave-II Alpha"
+git push
+
+Boundary:
+- This is a quarantined source-corpus import.
+- It must not automatically wire imported code into Wave-II runtime.
+- It must not mutate Wave-I cockpit runtime.
+- It must not create broker execution paths.
+- It must not create fake LIVE truth state.
+
+Promotion rule:
+Imported files are raw source material. Individual modules must be reviewed, tested, Truth-Spine checked, and explicitly promoted before use.
+
+Notes:
+- The script excludes only .git, node_modules, pnpm cache, turbo/cache, dist/build/coverage folders.
+- Source code, docs, configs, artifacts, scripts, and project structure are preserved under imports/wave-rider-intelligence.
+- Use SOURCE_REF to import a specific branch or commit-capable ref if needed:
+
+SOURCE_REF=main bash scripts/import-wave-rider-intelligence-wholesale.sh
