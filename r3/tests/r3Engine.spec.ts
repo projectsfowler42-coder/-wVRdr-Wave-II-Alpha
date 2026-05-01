@@ -119,7 +119,7 @@ export function testLocalVaultBridgeKeepsPrivatePathLocal(): void {
 
   const manifest = buildLocalVaultManifest({ manifestId: "fixture", files: [privateFile] });
   const source = manifest.sourceManifests[0];
-  assert(source !== undefined, "Local vault manifest should contain source manifest");
+  if (source === undefined) throw new Error("Local vault manifest should contain source manifest");
   assertEqual(Object.prototype.hasOwnProperty.call(source, "pathOrUrl"), false, "Private local source manifest must omit pathOrUrl");
   assertEqual(manifest.exportPolicy.rawRowsMayLeaveDevice, false, "Raw rows must not leave trusted device");
 }
@@ -131,7 +131,7 @@ export function testLocalVaultBridgeAllowsRedactedPathOnly(): void {
 
   const manifest = buildLocalVaultManifest({ manifestId: "fixture-redacted", files: [redactedFile] });
   const source = manifest.sourceManifests[0];
-  assert(source !== undefined, "Local vault manifest should contain redacted source manifest");
+  if (source === undefined) throw new Error("Local vault manifest should contain redacted source manifest");
   assertEqual(source.pathOrUrl, path.resolve(redactedFile), "Redacted local template may expose pathOrUrl");
 }
 
