@@ -38,6 +38,7 @@ const allowedDirs = new Set([
 const policyLexiconFiles = new Set([
   ".gitignore",
   "r3/security/mdk-security-sentinel.mjs",
+  "r3/security/breakGlass.ts",
   "r3/local-vault/README.md",
   "r3/local-vault/bridge.ts",
 ]);
