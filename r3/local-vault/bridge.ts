@@ -29,6 +29,22 @@ export interface LocalVaultManifest {
   };
 }
 
+export interface RepoSafeVaultManifest {
+  manifestId: string;
+  generatedAt: string;
+  deviceScope: "REPO_SAFE_PROJECTION";
+  sourceManifests: R3SourceManifestRecord[];
+  sourceCount: number;
+  privateSourceCount: number;
+  redactedSourceCount: number;
+  exportPolicy: {
+    rawRowsMayLeaveDevice: false;
+    containsLocalPaths: false;
+    containsRawFileProbes: false;
+    allowedRepoArtifacts: string[];
+  };
+}
+
 function inferKind(filePath: string): LocalVaultKind {
   const ext = path.extname(filePath).toLowerCase();
   if (ext === ".csv") return "CSV";
@@ -50,6 +66,14 @@ function inferSensitivity(filePath: string): LocalVaultSensitivity {
 
 function sha256Prefix(bytes: Buffer): string {
   return crypto.createHash("sha256").update(bytes).digest("hex").slice(0, 16);
+}
+
+function stripPathFromSource(source: R3SourceManifestRecord): R3SourceManifestRecord {
+  const { pathOrUrl: _pathOrUrl, ...rest } = source;
+  return {
+    ...rest,
+    notes: [...source.notes, "Repo-safe projection: local path stripped."],
+  };
 }
 
 export function probeLocalVaultFile(filePath: string): LocalVaultFileProbe {
@@ -129,7 +153,33 @@ export function buildLocalVaultManifest(args: {
   };
 }
 
+export function buildRepoSafeVaultManifest(manifest: LocalVaultManifest): RepoSafeVaultManifest {
+  const privateSourceCount = manifest.files.filter((file) => file.sensitivity === "PRIVATE" || file.sensitivity === "SECRET").length;
+  const redactedSourceCount = manifest.files.filter((file) => file.sensitivity === "REDACTED").length;
+
+  return {
+    manifestId: manifest.manifestId,
+    generatedAt: manifest.generatedAt,
+    deviceScope: "REPO_SAFE_PROJECTION",
+    sourceManifests: manifest.sourceManifests.map(stripPathFromSource),
+    sourceCount: manifest.sourceManifests.length,
+    privateSourceCount,
+    redactedSourceCount,
+    exportPolicy: {
+      rawRowsMayLeaveDevice: false,
+      containsLocalPaths: false,
+      containsRawFileProbes: false,
+      allowedRepoArtifacts: ["source-status", "checksum-prefix", "aggregate-derived-state", "redacted-source-count"],
+    },
+  };
+}
+
 export function writeLocalVaultManifest(manifest: LocalVaultManifest, outPath: string): void {
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, JSON.stringify(manifest, null, 2));
+}
+
+export function writeRepoSafeVaultManifest(manifest: RepoSafeVaultManifest, outPath: string): void {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(manifest, null, 2));
 }
