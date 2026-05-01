@@ -93,20 +93,27 @@ export function buildLocalVaultManifest(args: {
   sourceTitlePrefix?: string;
 }): LocalVaultManifest {
   const probes = args.files.map(probeLocalVaultFile);
-  const sourceManifests: R3SourceManifestRecord[] = probes.map((probe, index) => ({
-    sourceId: `${args.manifestId}:source:${index + 1}`,
-    kind: probe.kind === "CSV" || probe.kind === "PDF" ? "BROKER_EXPORT" : "UNKNOWN",
-    status: probe.exists ? "LOADED" : "MISSING",
-    title: `${args.sourceTitlePrefix ?? "Local vault source"} ${index + 1}`,
-    pathOrUrl: probe.sensitivity === "PUBLIC" || probe.sensitivity === "REDACTED" ? probe.absolutePath : undefined,
-    licenseStatus: "INTERNAL",
-    confidence: probe.exists ? 0.8 : 0,
-    notes: [
-      ...probe.notes,
-      probe.sha256Prefix ? `sha256Prefix:${probe.sha256Prefix}` : "no checksum",
-      "Raw rows are not exported to repo/app bundle.",
-    ],
-  }));
+  const sourceManifests: R3SourceManifestRecord[] = probes.map((probe, index) => {
+    const record: R3SourceManifestRecord = {
+      sourceId: `${args.manifestId}:source:${index + 1}`,
+      kind: probe.kind === "CSV" || probe.kind === "PDF" ? "BROKER_EXPORT" : "UNKNOWN",
+      status: probe.exists ? "LOADED" : "MISSING",
+      title: `${args.sourceTitlePrefix ?? "Local vault source"} ${index + 1}`,
+      licenseStatus: "INTERNAL",
+      confidence: probe.exists ? 0.8 : 0,
+      notes: [
+        ...probe.notes,
+        probe.sha256Prefix ? `sha256Prefix:${probe.sha256Prefix}` : "no checksum",
+        "Raw rows are not exported to repo/app bundle.",
+      ],
+    };
+
+    if (probe.sensitivity === "PUBLIC" || probe.sensitivity === "REDACTED") {
+      record.pathOrUrl = probe.absolutePath;
+    }
+
+    return record;
+  });
 
   return {
     manifestId: args.manifestId,
