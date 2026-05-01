@@ -1,8 +1,8 @@
-import { evaluateCircuitBreakers } from "../circuitBreakers";
-import { buildSurvivorshipProfile } from "../survivorshipInversion";
-import { evaluatePromotion } from "../promotionGate";
-import { waveIIEnvelope } from "../truth";
-import { inspectWithMdk, mdkBlocksPromotion } from "../mdkGate";
+import { evaluateCircuitBreakers } from "../circuitBreakers.js";
+import { buildSurvivorshipProfile } from "../survivorshipInversion.js";
+import { evaluatePromotion } from "../promotionGate.js";
+import { waveIIEnvelope } from "../truth.js";
+import { inspectWithMdk, mdkBlocksPromotion } from "../mdkGate.js";
 
 function assert(condition: unknown, message: string): void {
   if (!condition) throw new Error(message);

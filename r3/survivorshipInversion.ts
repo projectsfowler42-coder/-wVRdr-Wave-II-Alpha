@@ -73,14 +73,19 @@ export function createNegativeSpaceFeature(args: {
   lastKnownStateSummary?: string;
   sourceIds: string[];
 }): NegativeSpaceFeature {
-  return {
+  const feature: NegativeSpaceFeature = {
     entityId: args.entityId,
     featureDate: args.featureDate,
     missingExpectedObservation: args.expectedObservationMissing,
-    lastKnownStateSummary: args.lastKnownStateSummary,
     inferredRisk: args.expectedObservationMissing ? "POSSIBLE_FAILURE" : "NONE",
     sourceIds: args.sourceIds,
   };
+
+  if (args.lastKnownStateSummary !== undefined) {
+    feature.lastKnownStateSummary = args.lastKnownStateSummary;
+  }
+
+  return feature;
 }
 
 export function blocksEdgeConfirmation(profile: SurvivorshipProfile): boolean {
