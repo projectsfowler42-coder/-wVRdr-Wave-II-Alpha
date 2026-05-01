@@ -1,0 +1,21 @@
+# Private/local control-room data
+.local/
+local/
+private/
+secrets/
+*.env
+.env*
+
+# Broker confirmations and private trade exports
+*.pdf
+*confirmation*.csv
+*confirmed_seed.csv
+*broker*.csv
+*schwab*.csv
+
+# Build outputs
+node_modules/
+.r3-build/
+dist/
+build/
+coverage/
