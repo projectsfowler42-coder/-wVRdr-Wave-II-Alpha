@@ -11,7 +11,8 @@
     "dev:cockpit": "bash scripts/dev-cockpit.sh",
     "check:local-proof": "bash scripts/check-local-proof.sh",
     "test:r3": "pnpm exec tsc -p tsconfig.r3.json && node .r3-build/tests/r3Engine.spec.js",
-    "audit:r3": "node r3/audit/r3-audit-loop.mjs"
+    "audit:r3": "node r3/audit/r3-audit-loop.mjs",
+    "vault:manifest": "pnpm exec tsc -p tsconfig.r3.json && node .r3-build/local-vault/make-manifest.js"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",
