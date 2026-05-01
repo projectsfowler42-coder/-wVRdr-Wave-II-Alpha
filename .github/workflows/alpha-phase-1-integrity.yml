@@ -6,6 +6,7 @@ on:
       - alpha-phase-1-integrity-pass
       - alpha-phase-2-cockpit-bridge
       - alpha-phase-3-local-run-proof
+      - alpha-phase-4-r3-sentinel-gate
   pull_request:
     branches:
       - main
@@ -64,6 +65,7 @@ jobs:
           bash -n scripts/dev-bridge.sh
           bash -n scripts/dev-cockpit.sh
           bash -n scripts/check-local-proof.sh
+          bash -n scripts/alpha-sentinel-gate.sh
 
       - name: Start truth bridge
         run: |
@@ -73,6 +75,9 @@ jobs:
 
       - name: Check local proof script
         run: pnpm check:local-proof
+
+      - name: Check Alpha Sentinel gate
+        run: bash scripts/alpha-sentinel-gate.sh
 
       - name: Stop truth bridge
         if: always()
