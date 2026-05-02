@@ -360,6 +360,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/truth", handleTruth)
 	mux.HandleFunc("/api/snapshot", handleSnapshot)
+	mux.HandleFunc("/api/cockpit/hero-gauges", handleHeroGauges)
 	mux.HandleFunc("/api/telemetry/five-things", handleFiveThings)
 	mux.HandleFunc("/api/health", handleHealth)
 	mux.HandleFunc("/api/operator/intent", handleOperatorIntent)
