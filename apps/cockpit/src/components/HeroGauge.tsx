@@ -1,8 +1,16 @@
+import type { CSSProperties } from 'react';
+
 type HeroGaugeProps = {
   title: string;
   value: number;
   label: string;
   accent?: string;
+};
+
+type GaugeStyle = CSSProperties & {
+  '--gauge-accent': string;
+  '--gauge-offset': number;
+  '--gauge-fill': string;
 };
 
 function clampGaugeValue(value: number): number {
@@ -17,40 +25,54 @@ function gaugeAccent(value: number): string {
   return '#FF69B4';
 }
 
+function gaugeFill(value: number, accent: string): string {
+  const safeValue = clampGaugeValue(value);
+  return `linear-gradient(135deg, ${accent}22 0%, rgba(255,255,255,0.54) ${Math.max(
+    28,
+    safeValue,
+  )}%, ${accent}30 100%)`;
+}
+
 export function HeroGauge({ title, value, label, accent }: HeroGaugeProps) {
   const safeValue = clampGaugeValue(value);
   const stroke = accent ?? gaugeAccent(safeValue);
-  const arcLength = 157;
-  const dashOffset = arcLength - (arcLength * safeValue) / 100;
+  const dashOffset = 100 - safeValue;
+  const roundedValue = Math.round(safeValue).toString().padStart(2, '0');
+  const gaugeStyle: GaugeStyle = {
+    '--gauge-accent': stroke,
+    '--gauge-offset': dashOffset,
+    '--gauge-fill': gaugeFill(safeValue, stroke),
+  };
 
   return (
-    <article className="hero-gauge-card" aria-label={`${title} ${safeValue}% ${label}`}>
+    <article
+      className="hero-gauge-card"
+      style={gaugeStyle}
+      aria-label={`${title} ${Math.round(safeValue)} percent ${label}`}
+    >
+      <div className="hero-gauge-sheen" aria-hidden="true" />
       <div className="hero-gauge-title-row">
         <span>{title}</span>
         <small>READ ONLY</small>
       </div>
 
       <div className="hero-gauge-arc-wrap">
-        <svg className="hero-gauge-svg" viewBox="0 0 120 72" role="img" aria-hidden="true">
-          <path
-            className="hero-gauge-track"
-            d="M 10 62 A 50 50 0 0 1 110 62"
-            pathLength={arcLength}
-          />
-          <path
-            className="hero-gauge-fill"
-            d="M 10 62 A 50 50 0 0 1 110 62"
-            pathLength={arcLength}
-            style={{
-              stroke,
-              strokeDasharray: arcLength,
-              strokeDashoffset: dashOffset,
-              filter: `drop-shadow(0 0 10px ${stroke})`,
-            }}
-          />
+        <svg className="hero-gauge-svg" viewBox="0 0 120 78" role="img" aria-hidden="true">
+          <path className="hero-gauge-track" d="M 10 64 A 50 50 0 0 1 110 64" pathLength={100} />
+          <path className="hero-gauge-glass-line" d="M 10 64 A 50 50 0 0 1 110 64" pathLength={100} />
+          <path className="hero-gauge-fill" d="M 10 64 A 50 50 0 0 1 110 64" pathLength={100} />
         </svg>
+
+        <div className="hero-gauge-ticks" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+
         <div className="hero-gauge-value">
-          <strong>{Math.round(safeValue)}</strong>
+          <strong>{roundedValue}</strong>
           <span>%</span>
         </div>
       </div>
