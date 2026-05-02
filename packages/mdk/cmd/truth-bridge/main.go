@@ -41,12 +41,13 @@ type AlphaTruthResponse struct {
 }
 
 type HealthResponse struct {
-	Status            string `json:"status"`
-	Server            string `json:"server"`
-	Schema            string `json:"schema"`
-	CockpitSchema     string `json:"cockpitSchema"`
-	Mode              string `json:"mode"`
-	ExecutionEligible bool   `json:"executionEligible"`
+	Status            string            `json:"status"`
+	Server            string            `json:"server"`
+	Schema            string            `json:"schema"`
+	CockpitSchema     string            `json:"cockpitSchema"`
+	Mode              string            `json:"mode"`
+	ExecutionEligible bool              `json:"executionEligible"`
+	DeviceProof       deviceProofStatus `json:"deviceProof"`
 }
 
 type CockpitSnapshot struct {
@@ -110,7 +111,7 @@ func setCORSHeaders(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", origin)
 	w.Header().Set("Vary", "Origin")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, X-wVRdr-Device-Id, X-wVRdr-Nonce, X-wVRdr-Timestamp, X-wVRdr-Fingerprint")
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {
@@ -176,6 +177,7 @@ func healthResponse() HealthResponse {
 		CockpitSchema:     cockpitSchema,
 		Mode:              "READ_ONLY_DORMANT",
 		ExecutionEligible: false,
+		DeviceProof:       currentDeviceProofStatus(),
 	}
 }
 
@@ -197,6 +199,9 @@ func handleTruth(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if !requireDeviceProof(w, r) {
 		return
 	}
 	if r.Method != http.MethodGet {
@@ -301,6 +306,9 @@ func handleSnapshot(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+	if !requireDeviceProof(w, r) {
+		return
+	}
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "GET required"))
 		return
@@ -316,6 +324,9 @@ func handleFiveThings(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+	if !requireDeviceProof(w, r) {
+		return
+	}
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "GET required"))
 		return
@@ -329,6 +340,9 @@ func handleOperatorIntent(w http.ResponseWriter, r *http.Request) {
 	setCORSHeaders(w, r)
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if !requireDeviceProof(w, r) {
 		return
 	}
 	if r.Method != http.MethodPost {
