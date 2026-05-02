@@ -6,3 +6,4 @@ export * from "./promotionGate.js";
 export * from "./mdkGate.js";
 export * from "./contracts.js";
 export * from "./local-vault/bridge.js";
+export * from "./local-vault/intakeGate.js";
