@@ -93,12 +93,17 @@ export function evaluateRepoSafeManifestIntake(input: unknown): RepoSafeManifest
     findings.push({ severity: "PASS", code: "REPO_SAFE_INTAKE_ACCEPTED", message: "Manifest passed repo-safe intake gate." });
   }
 
-  return {
+  const decision: RepoSafeManifestIntakeDecision = {
     verdict: blocked ? "REJECT" : "ACCEPT",
-    manifestId: typeof input.manifestId === "string" ? input.manifestId : undefined,
     sourceCount: sources.length,
     findings,
   };
+
+  if (typeof input.manifestId === "string") {
+    decision.manifestId = input.manifestId;
+  }
+
+  return decision;
 }
 
 export function assertRepoSafeManifestIntake(input: unknown): RepoSafeVaultManifest {
