@@ -16,6 +16,7 @@ It can:
 - poll a repo-safe JSON endpoint or static file
 - show audit events
 - provide a design-control surface for R³ UI/UX work
+- install as a standalone mobile web app shell when served over an eligible origin
 
 It cannot:
 
@@ -39,6 +40,18 @@ Then open:
 ```text
 http://localhost:4173
 ```
+
+## Installable preview mode
+
+The preview shell includes:
+
+- `manifest.webmanifest`
+- mobile theme metadata
+- standalone display mode
+- ivory background and theme color
+- SVG app icon using the wVRdr wave mark
+
+A service worker is intentionally not required yet. The preview shell must remain read-only and repo-safe before offline caching is added.
 
 ## Intended data path
 
