@@ -48,8 +48,26 @@ export type WaveSnapshot = {
   };
 };
 
+export type HeroGaugeValue = {
+  value: number;
+  label: string;
+};
+
+export type HeroGaugeState = {
+  schema?: string;
+  regime: HeroGaugeValue;
+  vectors: HeroGaugeValue;
+  threats: HeroGaugeValue;
+  portfolio: HeroGaugeValue;
+  timestamp?: string;
+  truthClass?: string;
+  executionEligible?: boolean;
+  source?: string;
+};
+
 export type SnapshotResult = {
   snapshot: WaveSnapshot | null;
+  heroGauges: HeroGaugeState | null;
   health: HealthResponse | null;
   degraded: boolean;
   stale: boolean;
@@ -91,6 +109,10 @@ export async function getHealth(): Promise<HealthResponse> {
 
 export async function getSnapshot(): Promise<WaveSnapshot> {
   return requestJson<WaveSnapshot>('/api/snapshot');
+}
+
+export async function getHeroGauges(): Promise<HeroGaugeState> {
+  return requestJson<HeroGaugeState>('/api/cockpit/hero-gauges');
 }
 
 export async function sendOperatorIntent(intent: Record<string, unknown>): Promise<{ ok?: boolean; id?: string; status?: string }> {
