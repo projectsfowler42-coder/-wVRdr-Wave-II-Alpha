@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getHealth, getSnapshot, isSnapshotStale, type HealthResponse, type WaveSnapshot } from '../services/waveApi';
+import { getHealth, getHeroGauges, getSnapshot, isSnapshotStale, type HealthResponse, type HeroGaugeState, type WaveSnapshot } from '../services/waveApi';
 
 export type UseWaveSnapshotState = {
   snapshot: WaveSnapshot | null;
+  heroGauges: HeroGaugeState | null;
   health: HealthResponse | null;
   loading: boolean;
   degraded: boolean;
@@ -14,6 +15,7 @@ export type UseWaveSnapshotState = {
 
 export function useWaveSnapshot(pollMs = 60000): UseWaveSnapshotState {
   const [snapshot, setSnapshot] = useState<WaveSnapshot | null>(null);
+  const [heroGauges, setHeroGauges] = useState<HeroGaugeState | null>(null);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,13 +25,15 @@ export function useWaveSnapshot(pollMs = 60000): UseWaveSnapshotState {
     setLoading(true);
     setError(null);
     try {
-      const [healthResult, snapshotResult] = await Promise.all([getHealth(), getSnapshot()]);
+      const [healthResult, snapshotResult, heroGaugeResult] = await Promise.all([getHealth(), getSnapshot(), getHeroGauges()]);
       setHealth(healthResult);
       setSnapshot(snapshotResult);
+      setHeroGauges(heroGaugeResult);
       setLoadedAt(new Date().toISOString());
     } catch (err) {
       setHealth(null);
       setSnapshot(null);
+      setHeroGauges(null);
       setLoadedAt(null);
       setError(err instanceof Error ? err.message : 'Wave-I API unavailable');
     } finally {
@@ -48,6 +52,7 @@ export function useWaveSnapshot(pollMs = 60000): UseWaveSnapshotState {
 
   return {
     snapshot,
+    heroGauges,
     health,
     loading,
     degraded,
