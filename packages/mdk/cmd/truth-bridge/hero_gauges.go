@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 // HeroGaugeValue represents one read-only hero gauge shown in the cockpit.
 // Value is always UI-safe 0-100 telemetry and never execution permission.
