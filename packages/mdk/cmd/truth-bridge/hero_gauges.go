@@ -102,6 +102,9 @@ func handleHeroGauges(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+	if !requireDeviceProof(w, r) {
+		return
+	}
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, failureEnvelope("METHOD_NOT_ALLOWED", "GET required"))
 		return
