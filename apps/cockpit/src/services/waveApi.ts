@@ -77,6 +77,7 @@ export type SnapshotResult = {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL as string | undefined;
 const READ_TOKEN = import.meta.env.VITE_PUBLIC_READ_TOKEN as string | undefined;
+const REQUEST_TIMEOUT_MS = 3500;
 
 function requireApiBase(): string {
   if (!API_BASE || API_BASE.trim().length === 0) {
@@ -85,22 +86,39 @@ function requireApiBase(): string {
   return API_BASE.replace(/\/$/, '');
 }
 
+function abortErrorMessage(path: string): string {
+  return `${path} stale-rescue timeout after ${REQUEST_TIMEOUT_MS}ms`;
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const base = requireApiBase();
   const headers = new Headers(init?.headers);
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
   headers.set('Accept', 'application/json');
   if (READ_TOKEN) headers.set('Authorization', `Bearer ${READ_TOKEN}`);
 
-  const response = await fetch(`${base}${path}`, {
-    ...init,
-    headers
-  });
+  try {
+    const response = await fetch(`${base}${path}`, {
+      ...init,
+      headers,
+      signal: controller.signal
+    });
 
-  if (!response.ok) {
-    throw new Error(`${path} returned ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`${path} returned ${response.status}`);
+    }
+
+    return response.json() as Promise<T>;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(abortErrorMessage(path));
+    }
+    throw err;
+  } finally {
+    window.clearTimeout(timeoutId);
   }
-
-  return response.json() as Promise<T>;
 }
 
 export async function getHealth(): Promise<HealthResponse> {
