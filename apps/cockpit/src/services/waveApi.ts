@@ -7,6 +7,12 @@ export type HealthResponse = {
   last_updated?: string;
   truth_spine?: string;
   message?: string;
+  deviceProof?: {
+    mode?: string;
+    configured?: boolean;
+    requiredWhenSet?: boolean;
+    timestampSkewSecs?: number;
+  };
 };
 
 export type WaveSnapshot = {
@@ -77,6 +83,8 @@ export type SnapshotResult = {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL as string | undefined;
 const READ_TOKEN = import.meta.env.VITE_PUBLIC_READ_TOKEN as string | undefined;
+const DEVICE_ID = import.meta.env.VITE_WVRDR_DEVICE_ID as string | undefined;
+const DEVICE_PROOF = import.meta.env.VITE_WVRDR_DEVICE_PROOF as string | undefined;
 const REQUEST_TIMEOUT_MS = 3500;
 
 function requireApiBase(): string {
@@ -90,6 +98,14 @@ function abortErrorMessage(path: string): string {
   return `${path} stale-rescue timeout after ${REQUEST_TIMEOUT_MS}ms`;
 }
 
+function attachDeviceProofHeaders(headers: Headers): void {
+  if (!DEVICE_ID || !DEVICE_PROOF) return;
+  headers.set('X-wVRdr-Device-Id', DEVICE_ID);
+  headers.set('X-wVRdr-Fingerprint', DEVICE_PROOF);
+  headers.set('X-wVRdr-Nonce', crypto.randomUUID());
+  headers.set('X-wVRdr-Timestamp', new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'));
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const base = requireApiBase();
   const headers = new Headers(init?.headers);
@@ -98,6 +114,7 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
 
   headers.set('Accept', 'application/json');
   if (READ_TOKEN) headers.set('Authorization', `Bearer ${READ_TOKEN}`);
+  attachDeviceProofHeaders(headers);
 
   try {
     const response = await fetch(`${base}${path}`, {
