@@ -8,11 +8,20 @@
   </head>
   <body>
     <main class="shell">
-      <header class="topbar">
-        <section>
-          <p class="eyebrow">wVRdr~ / Wave-II Alpha</p>
-          <h1>R³ Preview Shell</h1>
+      <header class="topbar glass-frame">
+        <section class="brand-block">
+          <div class="brand-mark" aria-hidden="true"><span class="wave-glyph">~wV</span><span class="brand-text">Rdr~</span></div>
+          <div>
+            <p class="eyebrow">Wave-II Alpha / R³ Control Room</p>
+            <h1>Preview Shell</h1>
+          </div>
         </section>
+        <nav class="segmented-nav" aria-label="R3 preview sections">
+          <button class="segment active">Regime</button>
+          <button class="segment">Vault</button>
+          <button class="segment">Sentinel</button>
+          <button class="segment">Design</button>
+        </nav>
         <section class="status-strip" aria-label="System status">
           <span id="modeBadge" class="badge badge-safe">SAFE_MODE</span>
           <span id="truthBadge" class="badge badge-watch">REPO_SAFE_PROJECTION ONLY</span>
@@ -20,11 +29,38 @@
         </section>
       </header>
 
+      <section class="grid metric-rack">
+        <article class="gauge-card glass-card">
+          <p class="eyebrow">Regime</p>
+          <div class="arc arc-mint"><span>78%</span></div>
+          <strong>Stable Expansion</strong>
+          <small>Reality confirmed</small>
+        </article>
+        <article class="gauge-card glass-card">
+          <p class="eyebrow">Vectors</p>
+          <div class="arc arc-green"><span>82%</span></div>
+          <strong>Converging Positive</strong>
+          <small>Deploy selective</small>
+        </article>
+        <article class="gauge-card glass-card">
+          <p class="eyebrow">Threats</p>
+          <div class="arc arc-orange"><span>45%</span></div>
+          <strong>Moderate Elevated</strong>
+          <small>Defensive posture</small>
+        </article>
+        <article class="gauge-card glass-card">
+          <p class="eyebrow">Portfolio</p>
+          <div class="arc arc-blue"><span>88%</span></div>
+          <strong>Healthy</strong>
+          <small>Read-only preview</small>
+        </article>
+      </section>
+
       <section class="grid grid-hero">
-        <article class="panel hero-panel">
+        <article class="panel hero-panel glass-card">
           <div class="panel-header">
-            <p class="eyebrow">Control Spine</p>
-            <h2>Truth → Vault → Projection → Intake</h2>
+            <p class="eyebrow">Truth Spine</p>
+            <h2>Private Data → Local Vault → Repo-Safe Projection → R³ Viewer</h2>
           </div>
           <div class="flowline" aria-label="R3 flow line">
             <div class="flow-node blocked">Private Data<br /><small>local only</small></div>
@@ -37,7 +73,7 @@
           </div>
         </article>
 
-        <article class="panel metric-panel">
+        <article class="panel metric-panel glass-card">
           <p class="eyebrow">Viewer State</p>
           <h2 id="viewerState">WAITING</h2>
           <p id="viewerSubstate">Load a repo-safe manifest or run in simulated design mode.</p>
@@ -45,7 +81,7 @@
       </section>
 
       <section class="grid grid-main">
-        <article class="panel">
+        <article class="panel glass-card">
           <div class="panel-header row">
             <div>
               <p class="eyebrow">Manifest Intake</p>
@@ -61,7 +97,7 @@
           <div id="manifestResult" class="result-box">No manifest loaded.</div>
         </article>
 
-        <article class="panel">
+        <article class="panel glass-card">
           <div class="panel-header">
             <p class="eyebrow">Security</p>
             <h2>Safe Mode / Break-Glass Watch</h2>
@@ -77,7 +113,7 @@
           </div>
         </article>
 
-        <article class="panel">
+        <article class="panel glass-card">
           <div class="panel-header">
             <p class="eyebrow">Real-Time Viewer</p>
             <h2>Polling Surface</h2>
@@ -93,7 +129,7 @@
           </div>
         </article>
 
-        <article class="panel">
+        <article class="panel glass-card">
           <div class="panel-header">
             <p class="eyebrow">Audit Console</p>
             <h2>Events</h2>
