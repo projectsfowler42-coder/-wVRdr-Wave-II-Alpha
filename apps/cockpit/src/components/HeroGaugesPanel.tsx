@@ -32,17 +32,27 @@ const EMPTY_STATE: HeroGaugeState = {
   source: 'truth-bridge',
 };
 
+function formatTimestamp(timestamp?: string): string {
+  if (!timestamp) return 'awaiting bridge';
+  const parsed = new Date(timestamp);
+  if (Number.isNaN(parsed.getTime())) return timestamp;
+  return parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
 export function HeroGaugesPanel({ state, loading = false }: HeroGaugesPanelProps) {
   const gauges = state ?? EMPTY_STATE;
+  const bridgeState = loading ? 'CONNECTING TO TRUTH-SPINE...' : (gauges.truthClass ?? 'UNVERIFIED');
+
   return (
     <section className="hero-gauges-panel" aria-busy={loading}>
+      <div className="hero-gauges-aura" aria-hidden="true" />
       <div className="hero-gauges-header">
         <div>
           <p className="eyebrow">Hero Gauges / Truth Bridge</p>
           <h2>Liquid glass telemetry</h2>
         </div>
         <div className="hero-gauges-meta">
-          <span>{gauges.truthClass ?? 'UNVERIFIED'}</span>
+          <span>{bridgeState}</span>
           <small>{gauges.executionEligible ? 'execution eligible' : 'execution locked'}</small>
         </div>
       </div>
@@ -56,7 +66,7 @@ export function HeroGaugesPanel({ state, loading = false }: HeroGaugesPanelProps
 
       <div className="hero-gauges-footer">
         <span>source={gauges.source ?? 'unknown'}</span>
-        <span>timestamp={gauges.timestamp ?? 'awaiting bridge'}</span>
+        <span>timestamp={formatTimestamp(gauges.timestamp)}</span>
       </div>
     </section>
   );
