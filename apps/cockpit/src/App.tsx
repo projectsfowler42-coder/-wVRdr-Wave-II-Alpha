@@ -1,3 +1,4 @@
+import { BridgeSecurityPanel } from './components/BridgeSecurityPanel';
 import { DegradedStatePanel } from './components/DegradedStatePanel';
 import { HeroGaugesPanel } from './components/HeroGaugesPanel';
 import { IntegrationGuide } from './components/IntegrationGuide';
@@ -158,13 +159,14 @@ function ActionStack({ title, items }: { title: string; items: Array<Record<stri
 }
 
 export default function App() {
-  const { snapshot, heroGauges, health, loading, degraded, stale, error, refresh } = useWaveSnapshot();
+  const { snapshot, heroGauges, health, loading, degraded, stale, error, loadedAt, refresh } = useWaveSnapshot();
 
   return (
     <main className="cockpit-shell">
       <SystemHealthStrip health={health} snapshot={snapshot} degraded={degraded} stale={stale} loading={loading} />
       {degraded ? <DegradedStatePanel error={error} stale={stale} onRefresh={refresh} /> : null}
       <HeroGaugesPanel state={heroGauges} loading={loading} />
+      <BridgeSecurityPanel health={health} snapshot={snapshot} heroGauges={heroGauges} stale={stale} degraded={degraded} error={error} loadedAt={loadedAt} />
       <section className="cockpit-grid">
         <RegimePanel snapshot={snapshot} />
         <BucketPortfolioPanel snapshot={snapshot} />
