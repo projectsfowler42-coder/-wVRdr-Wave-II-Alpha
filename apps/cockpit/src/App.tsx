@@ -1,3 +1,4 @@
+import { CockpitIntentSurface } from './components/CockpitIntentSurface';
 import { DegradedStatePanel } from './components/DegradedStatePanel';
 import { HeroGaugesPanel } from './components/HeroGaugesPanel';
 import { IntegrationGuide } from './components/IntegrationGuide';
@@ -165,6 +166,7 @@ export default function App() {
       <SystemHealthStrip health={health} snapshot={snapshot} degraded={degraded} stale={stale} loading={loading} />
       {degraded ? <DegradedStatePanel error={error} stale={stale} onRefresh={refresh} /> : null}
       <HeroGaugesPanel state={heroGauges} loading={loading} />
+      <CockpitIntentSurface health={health} bridgeStatus={snapshot?.system?.truth_spine} />
       <section className="cockpit-grid">
         <RegimePanel snapshot={snapshot} />
         <BucketPortfolioPanel snapshot={snapshot} />
