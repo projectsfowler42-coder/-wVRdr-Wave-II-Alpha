@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { CockpitIntentSurface } from './components/CockpitIntentSurface';
 import { DegradedStatePanel } from './components/DegradedStatePanel';
+import { DoctrinePlaceholderPage } from './components/DoctrinePlaceholderPage';
 import { HeroGaugesPanel } from './components/HeroGaugesPanel';
 import { IntegrationGuide } from './components/IntegrationGuide';
+import { PageShell, type PageKey } from './components/PageShell';
 import { SystemHealthStrip } from './components/SystemHealthStrip';
 import { sendOperatorIntent, type WaveSnapshot } from './services/waveApi';
 import { useWaveSnapshot } from './hooks/useWaveSnapshot';
@@ -158,13 +161,9 @@ function ActionStack({ title, items }: { title: string; items: Array<Record<stri
   );
 }
 
-export default function App() {
-  const { snapshot, heroGauges, health, loading, degraded, stale, error, refresh } = useWaveSnapshot();
-
+function CockpitPage({ snapshot, heroGauges, health, loading }: Pick<ReturnType<typeof useWaveSnapshot>, 'snapshot' | 'heroGauges' | 'health' | 'loading'>) {
   return (
-    <main className="cockpit-shell">
-      <SystemHealthStrip health={health} snapshot={snapshot} degraded={degraded} stale={stale} loading={loading} />
-      {degraded ? <DegradedStatePanel error={error} stale={stale} onRefresh={refresh} /> : null}
+    <>
       <HeroGaugesPanel state={heroGauges} loading={loading} />
       <CockpitIntentSurface health={health} bridgeStatus={snapshot?.system?.truth_spine} />
       <section className="cockpit-grid">
@@ -173,6 +172,24 @@ export default function App() {
         <ActionsAuditPanel snapshot={snapshot} />
         <IntegrationGuide />
       </section>
+    </>
+  );
+}
+
+export default function App() {
+  const [activePage, setActivePage] = useState<PageKey>('cockpit');
+  const { snapshot, heroGauges, health, loading, degraded, stale, error, refresh } = useWaveSnapshot();
+
+  return (
+    <main className="cockpit-shell">
+      <SystemHealthStrip health={health} snapshot={snapshot} degraded={degraded} stale={stale} loading={loading} />
+      <PageShell activePage={activePage} onPageChange={setActivePage} />
+      {degraded ? <DegradedStatePanel error={error} stale={stale} onRefresh={refresh} /> : null}
+      {activePage === 'cockpit' ? (
+        <CockpitPage snapshot={snapshot} heroGauges={heroGauges} health={health} loading={loading} />
+      ) : (
+        <DoctrinePlaceholderPage page={activePage} />
+      )}
     </main>
   );
 }
