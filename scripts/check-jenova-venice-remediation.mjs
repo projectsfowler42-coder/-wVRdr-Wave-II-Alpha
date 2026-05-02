@@ -38,20 +38,26 @@ const checks = [
   {
     id: 'r3-nodenext-script-present',
     file: 'scripts/check-r3-nodenext-imports.mjs',
-    required: ['R3 NodeNext import gate failed', 'runtime .js/.json/.mjs/.cjs extensions', 'r3/**/*.ts'],
+    required: ['R3 NodeNext import gate failed', 'runtime .js/.json/.mjs/.cjs extensions', "const R3_DIR = join(ROOT, 'r3')"],
     summary: 'NodeNext import gate script exists and reports runtime-extension failures'
   },
   {
     id: 'truth-bridge-device-proof',
-    file: 'packages/mdk/cmd/truth-bridge/device_proof.go',
+    file: 'packages/mdk/cmd/truth-bridge/device_auth.go',
     required: ['WVRDR_DEVICE_HMAC_SECRET', 'X-wVRdr-Fingerprint', 'HMAC_REQUIRED', 'sha256'],
     summary: 'truth bridge supports optional HMAC trusted-device proof'
   },
   {
     id: 'hero-gauges-device-proof',
     file: 'packages/mdk/cmd/truth-bridge/hero_gauges.go',
-    required: ['requireDeviceProof', '/api/cockpit/hero-gauges', 'wvrdr.alpha.hero_gauges.v1'],
+    required: ['requireDeviceProof', 'wvrdr.alpha.hero_gauges.v1'],
     summary: 'hero gauge cockpit contract is protected by device proof when enabled'
+  },
+  {
+    id: 'hero-gauges-route-registered',
+    file: 'packages/mdk/cmd/truth-bridge/main.go',
+    required: ['/api/cockpit/hero-gauges', 'handleHeroGauges'],
+    summary: 'hero gauge route is registered on the local truth bridge'
   },
   {
     id: 'device-proof-docs',
