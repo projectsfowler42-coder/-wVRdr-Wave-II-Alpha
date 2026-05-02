@@ -1,0 +1,20 @@
+{
+  "name": "wVRdr~ Wave-II Alpha Cockpit",
+  "short_name": "wVRdr~",
+  "description": "Local-first Truth Spine telemetry cockpit for Wave-II Alpha.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "landscape-primary",
+  "background_color": "#F6F0E7",
+  "theme_color": "#F5F0E7",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/wvrdr-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
