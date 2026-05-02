@@ -7,7 +7,8 @@ import { evaluatePromotion } from "../promotionGate.js";
 import { waveIIEnvelope } from "../truth.js";
 import { inspectWithMdk, mdkBlocksPromotion } from "../mdkGate.js";
 import { predictionCanBeScored, sarlaacRecordIsActionable, sourceIsUsable } from "../contracts.js";
-import { buildLocalVaultManifest, probeLocalVaultFile } from "../local-vault/bridge.js";
+import { buildLocalVaultManifest, buildRepoSafeVaultManifest, probeLocalVaultFile } from "../local-vault/bridge.js";
+import { evaluateRepoSafeManifestIntake } from "../local-vault/intakeGate.js";
 
 function assert(condition: unknown, message: string): void {
   if (!condition) throw new Error(message);
@@ -135,6 +136,30 @@ export function testLocalVaultBridgeAllowsRedactedPathOnly(): void {
   assertEqual(source.pathOrUrl, path.resolve(redactedFile), "Redacted local template may expose pathOrUrl");
 }
 
+export function testRepoSafeManifestIntakeGate(): void {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "r3-vault-"));
+  const privateFile = path.join(tempDir, "broker_confirmed_seed.csv");
+  fs.writeFileSync(privateFile, "ticker,quantity,price\nREDACTED,0,0\n");
+
+  const localManifest = buildLocalVaultManifest({ manifestId: "fixture-intake", files: [privateFile] });
+  const localDecision = evaluateRepoSafeManifestIntake(localManifest);
+  assertEqual(localDecision.verdict, "REJECT", "Trusted local device manifest must be rejected by app/repo intake");
+  assert(localDecision.findings.some((finding) => finding.code === "WRONG_DEVICE_SCOPE"), "Local manifest should fail device scope");
+  assert(localDecision.findings.some((finding) => finding.code === "RAW_FILE_PROBES_PRESENT"), "Local manifest should fail raw probes check");
+
+  const repoSafeManifest = buildRepoSafeVaultManifest(localManifest);
+  const acceptedDecision = evaluateRepoSafeManifestIntake(repoSafeManifest);
+  assertEqual(acceptedDecision.verdict, "ACCEPT", "Repo-safe projection should pass app/repo intake");
+
+  const poisonedManifest = {
+    ...repoSafeManifest,
+    sourceManifests: [{ ...repoSafeManifest.sourceManifests[0], pathOrUrl: privateFile }],
+  };
+  const poisonedDecision = evaluateRepoSafeManifestIntake(poisonedManifest);
+  assertEqual(poisonedDecision.verdict, "REJECT", "Repo-safe manifest with pathOrUrl must be rejected");
+  assert(poisonedDecision.findings.some((finding) => finding.code === "SOURCE_PATH_PRESENT"), "Poisoned manifest should fail path check");
+}
+
 export function runR3Tests(): void {
   testHardDeck();
   testVolatilityClamp();
@@ -146,6 +171,7 @@ export function runR3Tests(): void {
   testR3Contracts();
   testLocalVaultBridgeKeepsPrivatePathLocal();
   testLocalVaultBridgeAllowsRedactedPathOnly();
+  testRepoSafeManifestIntakeGate();
 }
 
 runR3Tests();
