@@ -4,6 +4,7 @@ import { DegradedStatePanel } from './components/DegradedStatePanel';
 import { DoctrinePlaceholderPage } from './components/DoctrinePlaceholderPage';
 import { FtyskContextPage } from './components/FtyskContextPage';
 import { HeroGaugesPanel } from './components/HeroGaugesPanel';
+import { HoloDeckPage } from './components/HoloDeckPage';
 import { IntegrationGuide } from './components/IntegrationGuide';
 import { MdkRoutingHubPage } from './components/MdkRoutingHubPage';
 import { PageShell, type PageKey } from './components/PageShell';
@@ -193,6 +194,8 @@ export default function App() {
         <MdkRoutingHubPage snapshot={snapshot} />
       ) : activePage === 'ftysk' ? (
         <FtyskContextPage snapshot={snapshot} />
+      ) : activePage === 'holoDeck' ? (
+        <HoloDeckPage snapshot={snapshot} />
       ) : (
         <DoctrinePlaceholderPage page={activePage} />
       )}
