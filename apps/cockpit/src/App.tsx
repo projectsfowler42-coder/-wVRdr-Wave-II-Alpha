@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BridgeSecurityPanel } from './components/BridgeSecurityPanel';
 import { CockpitIntentSurface } from './components/CockpitIntentSurface';
 import { DegradedStatePanel } from './components/DegradedStatePanel';
 import { DoctrinePlaceholderPage } from './components/DoctrinePlaceholderPage';
@@ -163,11 +164,12 @@ function ActionStack({ title, items }: { title: string; items: Array<Record<stri
   );
 }
 
-function CockpitPage({ snapshot, heroGauges, health, loading }: Pick<ReturnType<typeof useWaveSnapshot>, 'snapshot' | 'heroGauges' | 'health' | 'loading'>) {
+function CockpitPage({ snapshot, heroGauges, health, loading, stale, degraded, error, loadedAt }: Pick<ReturnType<typeof useWaveSnapshot>, 'snapshot' | 'heroGauges' | 'health' | 'loading' | 'stale' | 'degraded' | 'error' | 'loadedAt'>) {
   return (
     <>
       <HeroGaugesPanel state={heroGauges} loading={loading} />
       <CockpitIntentSurface health={health} bridgeStatus={snapshot?.system?.truth_spine} />
+      <BridgeSecurityPanel health={health} snapshot={snapshot} heroGauges={heroGauges} stale={stale} degraded={degraded} error={error} loadedAt={loadedAt} />
       <section className="cockpit-grid">
         <RegimePanel snapshot={snapshot} />
         <BucketPortfolioPanel snapshot={snapshot} />
@@ -180,7 +182,7 @@ function CockpitPage({ snapshot, heroGauges, health, loading }: Pick<ReturnType<
 
 export default function App() {
   const [activePage, setActivePage] = useState<PageKey>('cockpit');
-  const { snapshot, heroGauges, health, loading, degraded, stale, error, refresh } = useWaveSnapshot();
+  const { snapshot, heroGauges, health, loading, degraded, stale, error, loadedAt, refresh } = useWaveSnapshot();
 
   return (
     <main className="cockpit-shell">
@@ -188,7 +190,7 @@ export default function App() {
       <PageShell activePage={activePage} onPageChange={setActivePage} />
       {degraded ? <DegradedStatePanel error={error} stale={stale} onRefresh={refresh} /> : null}
       {activePage === 'cockpit' ? (
-        <CockpitPage snapshot={snapshot} heroGauges={heroGauges} health={health} loading={loading} />
+        <CockpitPage snapshot={snapshot} heroGauges={heroGauges} health={health} loading={loading} stale={stale} degraded={degraded} error={error} loadedAt={loadedAt} />
       ) : activePage === 'mdk' ? (
         <MdkRoutingHubPage snapshot={snapshot} />
       ) : activePage === 'ftysk' ? (
