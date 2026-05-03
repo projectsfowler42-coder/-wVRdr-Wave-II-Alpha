@@ -87,17 +87,17 @@ code {
 .eyebrow { margin: 0; text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem; font-weight: 900; opacity: 0.62; }
 
 .status-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.65rem; }
-.status-pill, .audit-card, .bucket-card, .thing-card, .position-card, .action-card, .empty-card, .doctrine-card, .mdk-status-card, .mdk-node-card {
+.status-pill, .audit-card, .bucket-card, .thing-card, .position-card, .action-card, .empty-card, .doctrine-card, .mdk-status-card, .mdk-node-card, .ftysk-hero-card, .five-thing-card, .context-card {
   border: 1px solid rgba(0,0,0,0.08);
   border-radius: 1.2rem;
   background: rgba(255,255,255,0.56);
   padding: 0.75rem;
 }
 .status-pill { display: grid; gap: 0.15rem; }
-.status-pill span, .last-update span, .audit-card span, .bucket-card span, .score-orb span, .mdk-status-card span, .mdk-node-card span { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.58; font-weight: 900; }
-.status-pill strong, .audit-card strong, .bucket-card strong, .mdk-status-card strong, .mdk-node-card strong { font-size: 0.82rem; }
+.status-pill span, .last-update span, .audit-card span, .bucket-card span, .score-orb span, .mdk-status-card span, .mdk-node-card span, .ftysk-hero-card span, .five-thing-card span, .context-card span { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.58; font-weight: 900; }
+.status-pill strong, .audit-card strong, .bucket-card strong, .mdk-status-card strong, .mdk-node-card strong, .ftysk-hero-card strong, .five-thing-card strong, .context-card strong { font-size: 0.82rem; }
 .status-pill.ok { box-shadow: inset 0 0 0 2px rgba(42, 118, 75, 0.12); }
-.status-pill.warn, .audit-card.warn, .mdk-status-card.warn { box-shadow: inset 0 0 0 2px rgba(182, 89, 38, 0.18); }
+.status-pill.warn, .audit-card.warn, .mdk-status-card.warn, .ftysk-hero-card.warn { box-shadow: inset 0 0 0 2px rgba(182, 89, 38, 0.18); }
 .status-pill.locked { box-shadow: inset 0 0 0 2px rgba(40, 65, 110, 0.12); }
 .last-update { display: grid; gap: 0.25rem; font-size: 0.8rem; }
 
@@ -265,15 +265,16 @@ code {
 .intent-tile strong { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.66; }
 .intent-tile small { font-size: 0.72rem; line-height: 1.32; opacity: 0.72; }
 
-.doctrine-page-panel, .mdk-hub-panel { min-height: 62vh; }
+.doctrine-page-panel, .mdk-hub-panel, .ftysk-context-panel { min-height: 62vh; }
 .doctrine-page-purpose { max-width: 82ch; font-size: 1.05rem; line-height: 1.55; font-weight: 720; }
 .doctrine-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.7rem; margin: 1rem 0; }
 .doctrine-card { display: grid; gap: 0.25rem; min-height: 88px; align-content: start; }
 .doctrine-card strong { font-size: 0.92rem; }
 .doctrine-card small { opacity: 0.62; }
-.mdk-status-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; margin-bottom: 0.8rem; }
-.mdk-status-card { min-height: 112px; display: grid; gap: 0.35rem; align-content: start; }
-.mdk-status-card small, .mdk-node-card small { opacity: 0.64; line-height: 1.35; }
+.mdk-status-grid, .ftysk-hero-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; margin-bottom: 0.8rem; }
+.ftysk-hero-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.mdk-status-card, .ftysk-hero-card { min-height: 112px; display: grid; gap: 0.35rem; align-content: start; }
+.mdk-status-card small, .mdk-node-card small, .ftysk-hero-card small, .five-thing-card small { opacity: 0.64; line-height: 1.35; }
 .mdk-flow-strip {
   display: flex;
   flex-wrap: wrap;
@@ -292,9 +293,12 @@ code {
   font-size: 0.76rem;
 }
 .mdk-flow-strip strong { background: rgba(0,255,255,0.12); }
-.mdk-node-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.7rem; margin: 1rem 0; }
-.mdk-node-card { min-height: 156px; display: grid; gap: 0.4rem; align-content: start; }
-.mdk-node-card p { margin: 0; line-height: 1.35; }
+.mdk-node-grid, .context-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.7rem; margin: 1rem 0; }
+.mdk-node-card, .context-card { min-height: 156px; display: grid; gap: 0.4rem; align-content: start; }
+.mdk-node-card p, .context-card p { margin: 0; line-height: 1.35; }
+.five-things-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.7rem; margin: 1rem 0; }
+.five-thing-card { min-height: 142px; display: grid; gap: 0.35rem; align-content: start; background: linear-gradient(145deg, rgba(255,255,255,0.68), rgba(125,231,247,0.08)); }
+.five-thing-card strong { line-height: 1.35; }
 
 .cockpit-grid {
   flex: 1;
@@ -354,7 +358,7 @@ h3 { margin-bottom: 0.5rem; }
 @media (max-width: 1100px) {
   .system-strip, .degraded-panel, .cockpit-grid { grid-template-columns: 1fr; }
   .cockpit-grid { grid-template-rows: auto; }
-  .status-grid, .things-grid, .bucket-grid, .action-columns, .hero-gauges-grid, .doctrine-card-grid, .mdk-status-grid, .mdk-node-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .status-grid, .things-grid, .bucket-grid, .action-columns, .hero-gauges-grid, .doctrine-card-grid, .mdk-status-grid, .mdk-node-grid, .ftysk-hero-grid, .five-things-grid, .context-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .intent-tile-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .page-shell { grid-template-columns: repeat(3, minmax(0, 1fr)); border-radius: 1.35rem; }
 }
@@ -362,7 +366,7 @@ h3 { margin-bottom: 0.5rem; }
 @media (max-width: 680px) {
   .cockpit-shell { padding: 0.7rem; }
   .system-strip, .panel, .hero-gauges-panel, .intent-surface-panel, .page-shell { border-radius: 1.35rem; }
-  .status-grid, .things-grid, .bucket-grid, .action-columns, .audit-grid, .hero-gauges-grid, .intent-tile-grid, .doctrine-card-grid, .page-shell, .mdk-status-grid, .mdk-node-grid { grid-template-columns: 1fr; }
+  .status-grid, .things-grid, .bucket-grid, .action-columns, .audit-grid, .hero-gauges-grid, .intent-tile-grid, .doctrine-card-grid, .page-shell, .mdk-status-grid, .mdk-node-grid, .ftysk-hero-grid, .five-things-grid, .context-card-grid { grid-template-columns: 1fr; }
   .panel-head, .hero-gauges-header, .hero-gauges-footer, .intent-surface-head { flex-direction: column; align-items: flex-start; }
   .hero-gauges-meta, .intent-surface-meta { justify-items: start; }
   .score-orb { min-width: 92px; min-height: 92px; }
