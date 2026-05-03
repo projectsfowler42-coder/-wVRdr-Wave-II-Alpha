@@ -69,7 +69,7 @@ function value(value: unknown, fallback = 'UNVERIFIED'): string {
 }
 
 export function MdkRoutingHubPage({ snapshot }: MdkRoutingHubPageProps) {
-  const bridge = snapshot?.system?.mdk_bridge ?? snapshot?.system?.truth_spine ?? 'unknown';
+  const bridge = snapshot?.system?.truth_spine ?? snapshot?.system?.health ?? snapshot?.system?.mode ?? 'unknown';
   const quarantineCount = snapshot?.quarantine?.count ?? 0;
   const auditStatus = snapshot?.audit?.status ?? 'unreported';
 
