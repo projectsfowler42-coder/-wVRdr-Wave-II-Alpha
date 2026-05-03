@@ -42,7 +42,8 @@ code {
 .panel,
 .hero-gauges-panel,
 .intent-surface-panel,
-.page-shell {
+.page-shell,
+.bridge-security-panel {
   border: 1px solid rgba(30, 30, 30, 0.11);
   background: rgba(255, 252, 246, 0.72);
   box-shadow: 0 22px 70px rgba(58, 45, 31, 0.12);
@@ -87,14 +88,14 @@ code {
 .eyebrow { margin: 0; text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem; font-weight: 900; opacity: 0.62; }
 
 .status-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.65rem; }
-.status-pill, .audit-card, .bucket-card, .thing-card, .position-card, .action-card, .empty-card, .doctrine-card, .mdk-status-card, .mdk-node-card, .ftysk-hero-card, .five-thing-card, .context-card {
+.status-pill, .audit-card, .bucket-card, .thing-card, .position-card, .action-card, .empty-card, .doctrine-card, .mdk-status-card, .mdk-node-card, .ftysk-hero-card, .five-thing-card, .context-card, .truth-token {
   border: 1px solid rgba(0,0,0,0.08);
   border-radius: 1.2rem;
   background: rgba(255,255,255,0.56);
   padding: 0.75rem;
 }
 .status-pill { display: grid; gap: 0.15rem; }
-.status-pill span, .last-update span, .audit-card span, .bucket-card span, .score-orb span, .mdk-status-card span, .mdk-node-card span, .ftysk-hero-card span, .five-thing-card span, .context-card span { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.58; font-weight: 900; }
+.status-pill span, .last-update span, .audit-card span, .bucket-card span, .score-orb span, .mdk-status-card span, .mdk-node-card span, .ftysk-hero-card span, .five-thing-card span, .context-card span, .truth-token span, .bridge-security-mode span, .bridge-security-boundary span { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.58; font-weight: 900; }
 .status-pill strong, .audit-card strong, .bucket-card strong, .mdk-status-card strong, .mdk-node-card strong, .ftysk-hero-card strong, .five-thing-card strong, .context-card strong { font-size: 0.82rem; }
 .status-pill.ok { box-shadow: inset 0 0 0 2px rgba(42, 118, 75, 0.12); }
 .status-pill.warn, .audit-card.warn, .mdk-status-card.warn, .ftysk-hero-card.warn { box-shadow: inset 0 0 0 2px rgba(182, 89, 38, 0.18); }
@@ -154,7 +155,7 @@ code {
   filter: blur(22px);
   pointer-events: none;
 }
-.hero-gauges-header, .hero-gauges-footer, .hero-gauge-title-row, .intent-surface-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.hero-gauges-header, .hero-gauges-footer, .hero-gauge-title-row, .intent-surface-head, .bridge-security-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .hero-gauges-header { position: relative; margin-bottom: 1rem; z-index: 1; }
 .hero-gauges-header h2 { margin: 0; }
 .hero-gauges-meta, .intent-surface-meta { display: grid; justify-items: end; gap: 0.18rem; }
@@ -265,6 +266,22 @@ code {
 .intent-tile strong { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.66; }
 .intent-tile small { font-size: 0.72rem; line-height: 1.32; opacity: 0.72; }
 
+.bridge-security-panel { border-radius: 2rem; padding: 1rem; overflow: hidden; }
+.bridge-security-head { margin-bottom: 0.8rem; }
+.bridge-security-head h2 { margin: 0; }
+.bridge-security-mode { display: grid; justify-items: end; gap: 0.18rem; }
+.bridge-security-mode strong { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; max-width: 38ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.truth-token-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.65rem; }
+.truth-token { display: grid; gap: 0.25rem; min-height: 76px; align-content: center; }
+.truth-token strong { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; font-size: 0.86rem; letter-spacing: -0.03em; overflow-wrap: anywhere; }
+.truth-token.ok { box-shadow: inset 0 0 0 2px rgba(42, 118, 75, 0.14); }
+.truth-token.warn { background: rgba(255, 236, 215, 0.74); box-shadow: inset 0 0 0 2px rgba(182, 89, 38, 0.18); }
+.truth-token.locked { background: rgba(234, 239, 251, 0.72); box-shadow: inset 0 0 0 2px rgba(40, 65, 110, 0.13); }
+.truth-token.neutral { box-shadow: inset 0 0 0 2px rgba(118, 94, 42, 0.1); }
+.bridge-security-boundary { margin-top: 0.75rem; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 0.75rem; display: grid; gap: 0.25rem; }
+.bridge-security-boundary strong { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.bridge-security-error { margin: 0.7rem 0 0; border-radius: 1rem; padding: 0.7rem; background: rgba(255, 236, 215, 0.9); font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; font-size: 0.78rem; }
+
 .doctrine-page-panel, .mdk-hub-panel, .ftysk-context-panel { min-height: 62vh; }
 .doctrine-page-purpose { max-width: 82ch; font-size: 1.05rem; line-height: 1.55; font-weight: 720; }
 .doctrine-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.7rem; margin: 1rem 0; }
@@ -358,17 +375,17 @@ h3 { margin-bottom: 0.5rem; }
 @media (max-width: 1100px) {
   .system-strip, .degraded-panel, .cockpit-grid { grid-template-columns: 1fr; }
   .cockpit-grid { grid-template-rows: auto; }
-  .status-grid, .things-grid, .bucket-grid, .action-columns, .hero-gauges-grid, .doctrine-card-grid, .mdk-status-grid, .mdk-node-grid, .ftysk-hero-grid, .five-things-grid, .context-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .status-grid, .things-grid, .bucket-grid, .action-columns, .hero-gauges-grid, .doctrine-card-grid, .mdk-status-grid, .mdk-node-grid, .ftysk-hero-grid, .five-things-grid, .context-card-grid, .truth-token-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .intent-tile-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .page-shell { grid-template-columns: repeat(3, minmax(0, 1fr)); border-radius: 1.35rem; }
 }
 
 @media (max-width: 680px) {
   .cockpit-shell { padding: 0.7rem; }
-  .system-strip, .panel, .hero-gauges-panel, .intent-surface-panel, .page-shell { border-radius: 1.35rem; }
-  .status-grid, .things-grid, .bucket-grid, .action-columns, .audit-grid, .hero-gauges-grid, .intent-tile-grid, .doctrine-card-grid, .page-shell, .mdk-status-grid, .mdk-node-grid, .ftysk-hero-grid, .five-things-grid, .context-card-grid { grid-template-columns: 1fr; }
-  .panel-head, .hero-gauges-header, .hero-gauges-footer, .intent-surface-head { flex-direction: column; align-items: flex-start; }
-  .hero-gauges-meta, .intent-surface-meta { justify-items: start; }
+  .system-strip, .panel, .hero-gauges-panel, .intent-surface-panel, .page-shell, .bridge-security-panel { border-radius: 1.35rem; }
+  .status-grid, .things-grid, .bucket-grid, .action-columns, .audit-grid, .hero-gauges-grid, .intent-tile-grid, .doctrine-card-grid, .page-shell, .mdk-status-grid, .mdk-node-grid, .ftysk-hero-grid, .five-things-grid, .context-card-grid, .truth-token-grid { grid-template-columns: 1fr; }
+  .panel-head, .hero-gauges-header, .hero-gauges-footer, .intent-surface-head, .bridge-security-head { flex-direction: column; align-items: flex-start; }
+  .hero-gauges-meta, .intent-surface-meta, .bridge-security-mode { justify-items: start; }
   .score-orb { min-width: 92px; min-height: 92px; }
   .intent-row { flex-direction: column; }
 }
