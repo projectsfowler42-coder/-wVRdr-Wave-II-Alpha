@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CockpitIntentSurface } from './components/CockpitIntentSurface';
 import { DegradedStatePanel } from './components/DegradedStatePanel';
 import { DoctrinePlaceholderPage } from './components/DoctrinePlaceholderPage';
+import { FtyskContextPage } from './components/FtyskContextPage';
 import { HeroGaugesPanel } from './components/HeroGaugesPanel';
 import { IntegrationGuide } from './components/IntegrationGuide';
 import { MdkRoutingHubPage } from './components/MdkRoutingHubPage';
@@ -190,6 +191,8 @@ export default function App() {
         <CockpitPage snapshot={snapshot} heroGauges={heroGauges} health={health} loading={loading} />
       ) : activePage === 'mdk' ? (
         <MdkRoutingHubPage snapshot={snapshot} />
+      ) : activePage === 'ftysk' ? (
+        <FtyskContextPage snapshot={snapshot} />
       ) : (
         <DoctrinePlaceholderPage page={activePage} />
       )}
