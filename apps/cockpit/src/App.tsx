@@ -4,6 +4,7 @@ import { DegradedStatePanel } from './components/DegradedStatePanel';
 import { DoctrinePlaceholderPage } from './components/DoctrinePlaceholderPage';
 import { HeroGaugesPanel } from './components/HeroGaugesPanel';
 import { IntegrationGuide } from './components/IntegrationGuide';
+import { MdkRoutingHubPage } from './components/MdkRoutingHubPage';
 import { PageShell, type PageKey } from './components/PageShell';
 import { SystemHealthStrip } from './components/SystemHealthStrip';
 import { sendOperatorIntent, type WaveSnapshot } from './services/waveApi';
@@ -187,6 +188,8 @@ export default function App() {
       {degraded ? <DegradedStatePanel error={error} stale={stale} onRefresh={refresh} /> : null}
       {activePage === 'cockpit' ? (
         <CockpitPage snapshot={snapshot} heroGauges={heroGauges} health={health} loading={loading} />
+      ) : activePage === 'mdk' ? (
+        <MdkRoutingHubPage snapshot={snapshot} />
       ) : (
         <DoctrinePlaceholderPage page={activePage} />
       )}
