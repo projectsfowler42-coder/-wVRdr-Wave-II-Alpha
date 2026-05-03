@@ -8,6 +8,7 @@ import { HoloDeckPage } from './components/HoloDeckPage';
 import { IntegrationGuide } from './components/IntegrationGuide';
 import { MdkRoutingHubPage } from './components/MdkRoutingHubPage';
 import { PageShell, type PageKey } from './components/PageShell';
+import { SettingsPage } from './components/SettingsPage';
 import { SystemHealthStrip } from './components/SystemHealthStrip';
 import { sendOperatorIntent, type WaveSnapshot } from './services/waveApi';
 import { useWaveSnapshot } from './hooks/useWaveSnapshot';
@@ -196,6 +197,8 @@ export default function App() {
         <FtyskContextPage snapshot={snapshot} />
       ) : activePage === 'holoDeck' ? (
         <HoloDeckPage snapshot={snapshot} />
+      ) : activePage === 'settings' ? (
+        <SettingsPage snapshot={snapshot} health={health} degraded={degraded} stale={stale} />
       ) : (
         <DoctrinePlaceholderPage page={activePage} />
       )}
