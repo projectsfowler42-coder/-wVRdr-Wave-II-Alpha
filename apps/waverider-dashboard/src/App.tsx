@@ -1,9 +1,9 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Bell, Clock, LineChart, Search, SlidersHorizontal, User, Waves } from "lucide-react";
+import { loadDashboardSnapshot } from "./adapters/dashboardSnapshotAdapter";
 import { HeroCard } from "./components/HeroCard";
 import { MiniMetric } from "./components/MiniMetric";
 import { DecisionGatesPanel, DeltaEnginePanel, ITBPanel, PropLabPanel } from "./components/panels";
-import { mockDashboardSnapshot } from "./data/mockDashboardSnapshot";
 import { waveIColors } from "./tokens/waveIColors";
 
 type StatusStyle = CSSProperties & { "--status"?: string };
@@ -23,7 +23,7 @@ function TruthBanner() {
 }
 
 export default function WaveRiderDashboard() {
-  const snapshot = mockDashboardSnapshot;
+  const snapshot = loadDashboardSnapshot();
 
   return (
     <div className="screen">
