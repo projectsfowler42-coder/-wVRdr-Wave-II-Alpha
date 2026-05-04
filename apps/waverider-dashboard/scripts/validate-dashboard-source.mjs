@@ -16,6 +16,9 @@ function assert(condition, message) {
 
 const app = read(join(srcRoot, "App.tsx"));
 const adapter = read(join(srcRoot, "adapters", "dashboardSnapshotAdapter.ts"));
+const readiness = read(join(srcRoot, "contracts", "adapterReadiness.ts"));
+const localAdapter = read(join(srcRoot, "adapters", "localDashboardSnapshotAdapter.ts"));
+const truthBridgeAdapter = read(join(srcRoot, "adapters", "truthBridgeDashboardSnapshotAdapter.ts"));
 const guard = read(join(srcRoot, "contracts", "snapshotGuard.ts"));
 const snapshot = read(join(srcRoot, "data", "mockDashboardSnapshot.ts"));
 const styles = read(join(srcRoot, "styles.css"));
@@ -25,6 +28,17 @@ assert(!app.includes("mockDashboardSnapshot"), "App must not import mock data di
 assert(app.includes("MOCK / VISUAL PROTOTYPE"), "App must visibly state MOCK / VISUAL PROTOTYPE");
 
 assert(adapter.includes("guardDashboardSnapshot"), "Adapter must route snapshots through guardDashboardSnapshot");
+assert(adapter.includes("guardAdapterBoundary"), "Adapter must enforce adapter boundary before snapshot load");
+assert(adapter.includes("canUsePrivateData !== false"), "Adapter must deny private data capability");
+assert(adapter.includes("canUseBrokerConnection !== false"), "Adapter must deny broker capability");
+assert(adapter.includes("canUseExecutionAuthority !== false"), "Adapter must deny execution capability");
+assert(readiness.includes("MOCK_ONLY"), "Adapter readiness contract must define MOCK_ONLY");
+assert(readiness.includes("LOCAL_ONLY"), "Adapter readiness contract must define LOCAL_ONLY");
+assert(readiness.includes("CERTIFIED"), "Adapter readiness contract must define CERTIFIED");
+assert(localAdapter.includes("LOCAL_ONLY"), "Local adapter scaffold must declare LOCAL_ONLY readiness");
+assert(truthBridgeAdapter.includes("DEGRADED"), "Truth Bridge scaffold must declare DEGRADED readiness");
+assert(!truthBridgeAdapter.includes("fetch("), "Truth Bridge scaffold must not perform network fetch yet");
+
 assert(guard.includes("executionEligible !== false"), "Snapshot guard must enforce executionEligible false");
 assert(guard.includes("privateData !== false"), "Snapshot guard must enforce privateData false");
 assert(guard.includes("brokerConnected !== false"), "Snapshot guard must enforce brokerConnected false");
