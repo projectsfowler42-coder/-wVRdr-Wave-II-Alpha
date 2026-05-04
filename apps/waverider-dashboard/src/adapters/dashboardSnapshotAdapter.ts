@@ -1,4 +1,5 @@
 import type { DashboardSnapshot } from "../contracts/dashboardSnapshot";
+import { guardDashboardSnapshot } from "../contracts/snapshotGuard";
 import { mockDashboardSnapshot } from "../data/mockDashboardSnapshot";
 
 export type DashboardSnapshotAdapter = {
@@ -12,5 +13,5 @@ export const mockDashboardSnapshotAdapter: DashboardSnapshotAdapter = {
 };
 
 export function loadDashboardSnapshot(adapter: DashboardSnapshotAdapter = mockDashboardSnapshotAdapter): DashboardSnapshot {
-  return adapter.loadSnapshot();
+  return guardDashboardSnapshot(adapter.loadSnapshot());
 }
