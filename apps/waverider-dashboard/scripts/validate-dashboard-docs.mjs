@@ -19,6 +19,7 @@ const requiredDocs = [
   "MDK_RELEASE_CHECKLIST.md",
   "SCREENSHOT_REVIEW.md",
   "MDK_REVIEW.md",
+  "MDK_VISUAL_CONTRACT.md",
 ];
 
 for (const doc of requiredDocs) {
@@ -28,6 +29,7 @@ for (const doc of requiredDocs) {
 const readme = read(join(appRoot, "README.md"));
 const checklist = read(join(appRoot, "MDK_RELEASE_CHECKLIST.md"));
 const screenshot = read(join(appRoot, "SCREENSHOT_REVIEW.md"));
+const visualContract = read(join(appRoot, "MDK_VISUAL_CONTRACT.md"));
 
 assert(readme.includes("VISUAL_PROTOTYPE"), "README must state VISUAL_PROTOTYPE");
 assert(readme.includes("MOCK"), "README must state MOCK");
@@ -44,5 +46,10 @@ assert(screenshot.includes("Dual-arc hero gauges"), "Screenshot review must requ
 assert(screenshot.includes("MOCK / VISUAL PROTOTYPE"), "Screenshot review must require visible mock boundary");
 assert(screenshot.includes("broker connection"), "Screenshot review must block broker implication");
 assert(screenshot.includes("trade execution"), "Screenshot review must block execution implication");
+
+assert(visualContract.includes("DUAL_ARC_HERO_GAUGE_REQUIRED"), "Visual contract must lock dual-arc hero gauge requirement");
+assert(visualContract.includes("single-gauge hero cards"), "Visual contract must block single-gauge hero drift");
+assert(visualContract.includes("dark generic fintech dashboard mode"), "Visual contract must block dark generic drift");
+assert(visualContract.includes("fake LIVE, CONNECTED, or ACTIVE posture"), "Visual contract must block fake status posture");
 
 console.log("Dashboard documentation guard: PASS");
