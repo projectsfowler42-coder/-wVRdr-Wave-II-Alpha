@@ -49,7 +49,10 @@ requireStatusItem("MDK_UIUX_SOCOM_BOUNDARY_MAP.md remains current");
 
 assert(scripts["mdk:status"] === "node scripts/validate-mdk-status.mjs", "package script mdk:status must run validate-mdk-status");
 assert(scripts["mdk:source"] === "node scripts/validate-dashboard-source.mjs", "package script mdk:source must run validate-dashboard-source");
-assert(scripts["mdk:snapshot"] === "node scripts/validate-dashboard-snapshot.mjs", "package script mdk:snapshot must run validate-dashboard-snapshot");
+assert(
+  scripts["mdk:snapshot"] === "node scripts/validate-dashboard-snapshot.mjs && node scripts/validate-dashboard-snapshot-fixtures.mjs",
+  "package script mdk:snapshot must run static and fixture snapshot guards",
+);
 assert(scripts["mdk:docs"] === "node scripts/validate-dashboard-docs.mjs", "package script mdk:docs must run validate-dashboard-docs");
 assert(scripts["mdk:uiux"] === "node scripts/validate-dashboard-uiux-socom.mjs", "package script mdk:uiux must run validate-dashboard-uiux-socom");
 assert(scripts["mdk:visual"] === "node scripts/validate-dashboard-visual-source.mjs", "package script mdk:visual must run validate-dashboard-visual-source");
