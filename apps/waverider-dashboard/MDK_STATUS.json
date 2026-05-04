@@ -12,9 +12,11 @@
   "requiredBeforeRelease": [
     "typecheck passes",
     "build passes",
+    "mdk:static passes",
+    "mdk:uiux passes",
     "screenshot review passes",
     "mock/live boundary remains visible",
     "real-data adapter contract defined",
-    "MDK readiness gate integrated"
+    "MDK_UIUX_SOCOM_BOUNDARY_MAP.md remains current"
   ]
 }
