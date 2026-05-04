@@ -12,7 +12,8 @@
     "mdk:source": "node scripts/validate-dashboard-source.mjs",
     "mdk:snapshot": "node scripts/validate-dashboard-snapshot.mjs",
     "mdk:docs": "node scripts/validate-dashboard-docs.mjs",
-    "mdk:static": "pnpm run mdk:status && pnpm run mdk:source && pnpm run mdk:snapshot && pnpm run mdk:docs",
+    "mdk:visual": "node scripts/validate-dashboard-visual-source.mjs",
+    "mdk:static": "pnpm run mdk:status && pnpm run mdk:source && pnpm run mdk:snapshot && pnpm run mdk:docs && pnpm run mdk:visual",
     "mdk:gate": "pnpm run typecheck && pnpm run build && pnpm run mdk:static"
   },
   "dependencies": {
