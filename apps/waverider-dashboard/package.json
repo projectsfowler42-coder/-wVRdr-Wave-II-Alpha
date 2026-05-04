@@ -9,7 +9,10 @@
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "mdk:status": "node scripts/validate-mdk-status.mjs",
-    "mdk:gate": "pnpm run typecheck && pnpm run build && pnpm run mdk:status"
+    "mdk:source": "node scripts/validate-dashboard-source.mjs",
+    "mdk:snapshot": "node scripts/validate-dashboard-snapshot.mjs",
+    "mdk:static": "pnpm run mdk:status && pnpm run mdk:source && pnpm run mdk:snapshot",
+    "mdk:gate": "pnpm run typecheck && pnpm run build && pnpm run mdk:static"
   },
   "dependencies": {
     "@vitejs/plugin-react": "catalog:",
