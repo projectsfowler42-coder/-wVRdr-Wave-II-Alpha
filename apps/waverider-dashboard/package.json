@@ -7,7 +7,9 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mdk:status": "node scripts/validate-mdk-status.mjs",
+    "mdk:gate": "pnpm run typecheck && pnpm run build && pnpm run mdk:status"
   },
   "dependencies": {
     "@vitejs/plugin-react": "catalog:",
