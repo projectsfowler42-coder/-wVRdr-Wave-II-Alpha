@@ -1,0 +1,20 @@
+{
+  "surface": "waverider-dashboard",
+  "repo": "projectsfowler42-coder/-wVRdr-Wave-II-Alpha",
+  "path": "apps/waverider-dashboard",
+  "releaseState": "VISUAL_PROTOTYPE",
+  "truthClass": "MOCK",
+  "executionEligible": false,
+  "privateData": false,
+  "brokerConnected": false,
+  "releaseEligible": false,
+  "mdkVerdict": "WATCH_NOT_RELEASE_READY",
+  "requiredBeforeRelease": [
+    "typecheck passes",
+    "build passes",
+    "screenshot review passes",
+    "mock/live boundary remains visible",
+    "real-data adapter contract defined",
+    "MDK readiness gate integrated"
+  ]
+}
