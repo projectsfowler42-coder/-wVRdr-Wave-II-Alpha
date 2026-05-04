@@ -13,6 +13,8 @@ MOCK
 - [ ] `pnpm --filter @workspace/waverider-dashboard typecheck` passes.
 - [ ] `pnpm --filter @workspace/waverider-dashboard build` passes.
 - [ ] `pnpm --filter @workspace/waverider-dashboard mdk:static` passes.
+- [ ] `pnpm --filter @workspace/waverider-dashboard mdk:uiux` passes.
+- [ ] `MDK_UIUX_SOCOM_BOUNDARY_MAP.md` remains present and current.
 - [ ] Screenshot review passes against the approved hero-gauge reference.
 - [ ] The visible mock/live boundary remains present until real data is certified.
 - [ ] No UI label claims LIVE, CONNECTED, ACTIVE, broker access, private-data access, or execution authority while in prototype state.
@@ -35,3 +37,4 @@ Any of the following blocks release:
 - UI text claims `API HEALTH: CONNECTED` during prototype state.
 - UI text claims `MODEL STATUS: ACTIVE` during prototype state.
 - Truth Bridge scaffold performs a network fetch before certification.
+- `MDK_UIUX_SOCOM_BOUNDARY_MAP.md` is missing or fails `mdk:uiux`.
